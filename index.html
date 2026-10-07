@@ -523,6 +523,230 @@ function learn(items,mk,title){
   $('#lrev').onclick=()=>{rev=!rev;start()};start();
 }
 /* --- Spanisch --- */
+const parseVocab=t=>t.split('\n').map(l=>l.split(/[;\t]/).map(s=>s.trim())).filter(a=>a[0]&&a[1]).map(([de,es,w])=>({de,es,wortart:(Object.entries(WT).find(([k,[l]])=>w&&(k===w.toLowerCase()||l.toLowerCase()===w.toLowerCase()))||['nomen'])[0]}));
+const STARTER=`das Wasser;el agua;Nomen
+das Brot;el pan;Nomen
+der Apfel;la manzana;Nomen
+das Haus;la casa;Nomen
+der Freund;el amigo;Nomen
+die Freundin;la amiga;Nomen
+die Familie;la familia;Nomen
+der Vater;el padre;Nomen
+die Mutter;la madre;Nomen
+der Bruder;el hermano;Nomen
+die Schwester;la hermana;Nomen
+der Sohn;el hijo;Nomen
+die Tochter;la hija;Nomen
+der Mann;el hombre;Nomen
+die Frau;la mujer;Nomen
+das Kind;el niño;Nomen
+der Lehrer;el profesor;Nomen
+die Schule;la escuela;Nomen
+das Buch;el libro;Nomen
+der Tisch;la mesa;Nomen
+der Stuhl;la silla;Nomen
+das Zimmer;la habitación;Nomen
+die Küche;la cocina;Nomen
+die Stadt;la ciudad;Nomen
+das Land;el país;Nomen
+die Straße;la calle;Nomen
+das Auto;el coche;Nomen
+der Hund;el perro;Nomen
+die Katze;el gato;Nomen
+das Essen;la comida;Nomen
+das Frühstück;el desayuno;Nomen
+das Mittagessen;el almuerzo;Nomen
+das Abendessen;la cena;Nomen
+die Milch;la leche;Nomen
+der Kaffee;el café;Nomen
+der Käse;el queso;Nomen
+das Fleisch;la carne;Nomen
+der Fisch;el pescado;Nomen
+das Obst;la fruta;Nomen
+das Gemüse;la verdura;Nomen
+das Ei;el huevo;Nomen
+der Tag;el día;Nomen
+die Nacht;la noche;Nomen
+die Woche;la semana;Nomen
+der Monat;el mes;Nomen
+das Jahr;el año;Nomen
+die Zeit;el tiempo;Nomen
+die Stunde;la hora;Nomen
+das Wetter;el clima;Nomen
+das Geld;el dinero;Nomen
+die Arbeit;el trabajo;Nomen
+das Telefon;el teléfono;Nomen
+die Tasche;el bolso;Nomen
+der Name;el nombre;Nomen
+die Hand;la mano;Nomen
+der Kopf;la cabeza;Nomen
+das Auge;el ojo;Nomen
+das Herz;el corazón;Nomen
+der Bahnhof;la estación;Nomen
+das Geschäft;la tienda;Nomen
+sein (Wesen);ser;Verb
+sein (Zustand);estar;Verb
+haben;tener;Verb
+machen;hacer;Verb
+gehen;ir;Verb
+kommen;venir;Verb
+essen;comer;Verb
+trinken;beber;Verb
+sprechen;hablar;Verb
+lernen;aprender;Verb
+studieren;estudiar;Verb
+lesen;leer;Verb
+schreiben;escribir;Verb
+sehen;ver;Verb
+hören;escuchar;Verb
+wollen;querer;Verb
+können;poder;Verb
+wissen;saber;Verb
+kennen;conocer;Verb
+leben;vivir;Verb
+arbeiten;trabajar;Verb
+kaufen;comprar;Verb
+spielen;jugar;Verb
+schlafen;dormir;Verb
+öffnen;abrir;Verb
+schließen;cerrar;Verb
+geben;dar;Verb
+sagen;decir;Verb
+nehmen;tomar;Verb
+brauchen;necesitar;Verb
+lieben;amar;Verb
+tanzen;bailar;Verb
+singen;cantar;Verb
+laufen;correr;Verb
+warten;esperar;Verb
+suchen;buscar;Verb
+finden;encontrar;Verb
+verstehen;entender;Verb
+denken;pensar;Verb
+fahren (Auto);conducir;Verb
+reisen;viajar;Verb
+kochen;cocinar;Verb
+sich waschen;lavarse;Reflexivverb
+sich duschen;ducharse;Reflexivverb
+sich anziehen;vestirse;Reflexivverb
+aufwachen;despertarse;Reflexivverb
+aufstehen;levantarse;Reflexivverb
+sich setzen;sentarse;Reflexivverb
+sich hinlegen;acostarse;Reflexivverb
+sich kämmen;peinarse;Reflexivverb
+sich die Zähne putzen;lavarse los dientes;Reflexivverb
+sich rasieren;afeitarse;Reflexivverb
+sich schminken;maquillarse;Reflexivverb
+sich beeilen;darse prisa;Reflexivverb
+sich erinnern;acordarse;Reflexivverb
+heißen;llamarse;Reflexivverb
+sich fühlen;sentirse;Reflexivverb
+sich verabschieden;despedirse;Reflexivverb
+sich langweilen;aburrirse;Reflexivverb
+sich verlieben;enamorarse;Reflexivverb
+sich entspannen;relajarse;Reflexivverb
+sich vorstellen;presentarse;Reflexivverb
+groß;grande;Adjektiv
+klein;pequeño;Adjektiv
+gut;bueno;Adjektiv
+schlecht;malo;Adjektiv
+neu;nuevo;Adjektiv
+alt;viejo;Adjektiv
+schön;bonito;Adjektiv
+hässlich;feo;Adjektiv
+schnell;rápido;Adjektiv
+langsam;lento;Adjektiv
+heiß;caliente;Adjektiv
+kalt;frío;Adjektiv
+glücklich;feliz;Adjektiv
+traurig;triste;Adjektiv
+müde;cansado;Adjektiv
+teuer;caro;Adjektiv
+billig;barato;Adjektiv
+jung;joven;Adjektiv
+einfach;fácil;Adjektiv
+schwierig;difícil;Adjektiv
+lang;largo;Adjektiv
+kurz;corto;Adjektiv
+sauber;limpio;Adjektiv
+schmutzig;sucio;Adjektiv
+sehr;muy;Adverb
+auch;también;Adverb
+immer;siempre;Adverb
+nie;nunca;Adverb
+heute;hoy;Adverb
+morgen;mañana;Adverb
+gestern;ayer;Adverb
+jetzt;ahora;Adverb
+hier;aquí;Adverb
+dort;allí;Adverb
+schon;ya;Adverb
+noch;todavía;Adverb
+oft;a menudo;Adverb
+viel;mucho;Adverb
+wenig;poco;Adverb
+gut (Adverb);bien;Adverb
+schlecht (Adverb);mal;Adverb
+in;en;Präposition
+mit;con;Präposition
+ohne;sin;Präposition
+für;para;Präposition
+von / aus;de;Präposition
+zu / nach (Richtung);a;Präposition
+bis;hasta;Präposition
+zwischen;entre;Präposition
+auf / über;sobre;Präposition
+nach (zeitlich);después de;Präposition
+vor (zeitlich);antes de;Präposition
+wer;quién;Sonstiges
+was;qué;Sonstiges
+wo;dónde;Sonstiges
+wann;cuándo;Sonstiges
+warum;por qué;Sonstiges
+wie;cómo;Sonstiges
+wie viel;cuánto;Sonstiges
+welcher;cuál;Sonstiges
+ja;sí;Sonstiges
+nein;no;Sonstiges
+und;y;Sonstiges
+oder;o;Sonstiges
+aber;pero;Sonstiges
+eins;uno;Sonstiges
+zwei;dos;Sonstiges
+drei;tres;Sonstiges
+vier;cuatro;Sonstiges
+fünf;cinco;Sonstiges
+sechs;seis;Sonstiges
+sieben;siete;Sonstiges
+acht;ocho;Sonstiges
+neun;nueve;Sonstiges
+zehn;diez;Sonstiges
+Hallo;hola;Ausdruck
+Guten Morgen;buenos días;Ausdruck
+Guten Tag (nachmittags);buenas tardes;Ausdruck
+Guten Abend / Gute Nacht;buenas noches;Ausdruck
+Auf Wiedersehen;adiós;Ausdruck
+Bis bald;hasta pronto;Ausdruck
+Bis morgen;hasta mañana;Ausdruck
+Bitte;por favor;Ausdruck
+Danke;gracias;Ausdruck
+Gern geschehen;de nada;Ausdruck
+Entschuldigung;perdón;Ausdruck
+Wie geht es dir?;¿Cómo estás?;Ausdruck
+Mir geht es gut;Estoy bien;Ausdruck
+Wie heißt du?;¿Cómo te llamas?;Ausdruck
+Ich heiße ...;Me llamo ...;Ausdruck
+Freut mich;Mucho gusto;Ausdruck
+Ich verstehe nicht;No entiendo;Ausdruck
+Sprichst du Englisch?;¿Hablas inglés?;Ausdruck
+Wie viel kostet das?;¿Cuánto cuesta?;Ausdruck
+Ich weiß nicht;No sé;Ausdruck
+Ich habe Hunger;Tengo hambre;Ausdruck
+Ich habe Durst;Tengo sed;Ausdruck
+Prost;Salud;Ausdruck
+Viel Glück;Buena suerte;Ausdruck
+Wo ist ...?;¿Dónde está ...?;Ausdruck`;
+
 async function vEs(){
   VB('<p class="empty">Lade …</p>');
   const r=await sb.from('vocab_es').select('*').order('created_at',{ascending:false});
@@ -531,7 +755,7 @@ async function vEs(){
   VB(`<header class="top"><div><h1>Spanisch</h1><p class="meta" id="vc"></p></div><button class="btn" id="vlearn">🎓 Lernmodus</button></header>
   ${adm?`<div class="card" style="margin-bottom:18px"><div class="f2"><div><label for="vde">Deutsch</label><input id="vde"></div><div><label for="ves">Spanisch</label><input id="ves"></div>
   <div><label for="vwt">Wortart</label><select id="vwt">${Object.entries(WT).map(([k,[l,c]])=>`<option value="${k}" data-c="${c}">${l}</option>`).join('')}</select></div></div>
-  <button class="btn" id="vadd">Hinzufügen</button>
+  <button class="btn" id="vadd">Hinzufügen</button> <button class="btn ghost" id="vstart">📦 Anfänger-Wortschatz laden</button>
   <details style="margin-top:14px"><summary class="meta" style="cursor:pointer">Mehrere auf einmal importieren</summary><p class="meta" style="margin:8px 0">Eine Zeile pro Wort: Deutsch;Spanisch;Wortart (z. B. <i>sich waschen;lavarse;Reflexivverb</i>). Ohne Wortart wird „Nomen“ genommen.</p><textarea id="vbulk" rows="5"></textarea><button class="btn ghost" id="vimp">Importieren</button></details></div>`:''}
   <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"><select id="vso"><option value="wt">Sortiert nach Wortart</option><option value="de">Deutsch A–Z</option><option value="es">Spanisch A–Z</option><option value="new">Neueste zuerst</option></select></div>
   <div class="chips" id="vch"></div>
@@ -553,8 +777,13 @@ async function vEs(){
   if(adm){
     $('#vadd').onclick=async()=>{const de=$('#vde').value.trim(),es=$('#ves').value.trim();if(!de||!es)return toast('Deutsch und Spanisch ausfüllen.');
       const x=await sb.from('vocab_es').insert({de,es,wortart:$('#vwt').value});x.error?toast(x.error.message):(toast('Gespeichert'),vEs())};
+    $('#vstart').onclick=async()=>{
+      const have=new Set(all.map(w=>w.es.toLowerCase())),rows=parseVocab(STARTER).filter(w=>!have.has(w.es.toLowerCase()));
+      if(!rows.length)return toast('Der Anfänger-Wortschatz ist schon komplett vorhanden.');
+      if(!confirm(rows.length+' Anfänger-Wörter hinzufügen?'))return;
+      const x=await sb.from('vocab_es').insert(rows);x.error?toast(x.error.message):(toast(rows.length+' Wörter hinzugefügt'),vEs())};
     $('#vimp').onclick=async()=>{
-      const rows=$('#vbulk').value.split('\n').map(l=>l.split(/[;\t]/).map(s=>s.trim())).filter(a=>a[0]&&a[1]).map(([de,es,w])=>({de,es,wortart:(Object.entries(WT).find(([k,[l]])=>w&&(k===w.toLowerCase()||l.toLowerCase()===w.toLowerCase()))||['nomen'])[0]}));
+      const rows=parseVocab($('#vbulk').value);
       if(!rows.length)return toast('Keine gültigen Zeilen.');
       const x=await sb.from('vocab_es').insert(rows);x.error?toast(x.error.message):(toast(rows.length+' Wörter importiert'),vEs())};
   }
