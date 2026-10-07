@@ -123,6 +123,25 @@ button.chip{border:2px solid transparent;cursor:pointer;font:inherit;font-size:1
 .lc{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);cursor:pointer;margin-bottom:14px}
 .lc img,.bio img{max-width:100%;max-height:200px;border-radius:10px;object-fit:cover}
 .bio{padding:0;overflow:hidden}.bio img{width:100%;height:170px;max-height:none;border-radius:0}.bio .bd{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
+/* Checkboxen */
+input[type=checkbox]{appearance:none;-webkit-appearance:none;width:20px;height:20px;padding:0;margin:0;flex:none;border:2px solid var(--line);border-radius:6px;background:var(--bg);display:inline-grid;place-content:center;cursor:pointer;transition:background .2s,border-color .2s,transform .15s}
+input[type=checkbox]::after{content:"";width:10px;height:5px;border:solid #fff;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg) scale(0);margin-top:-2px;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+input[type=checkbox]:hover{border-color:var(--acc)}input[type=checkbox]:active{transform:scale(.9)}
+input[type=checkbox]:checked{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent}
+input[type=checkbox]:checked::after{transform:rotate(-45deg) scale(1)}
+.pk{transition:border-color .2s,background .2s}.pk:hover{border-color:var(--acc)}.pk:has(input:checked){border-color:var(--acc);background:rgba(91,91,240,.1)}
+/* Dropdowns */
+.dd{position:relative;margin-bottom:12px}.nu{align-items:flex-start}.nu .dd{flex:1;margin:0}.vbar .dd{flex:1;min-width:170px;margin:0}
+.ddb{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.ddb:hover,.dd.open .ddb{border-color:var(--acc)}.dd.open .ddb{box-shadow:0 0 0 3px rgba(91,91,240,.18)}
+.ddb span,.ddo span{display:flex;align-items:center;gap:8px}
+.ddb i{width:8px;height:8px;flex:none;border:solid var(--mute);border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-2px);transition:transform .25s}
+.dd.open .ddb i{transform:rotate(225deg) translateY(-2px)}
+.ddl{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:5px;box-shadow:0 12px 32px rgba(0,0,0,.25);max-height:260px;overflow:auto;opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top;transition:opacity .18s,transform .18s,visibility .18s}
+.dd.up .ddl{top:auto;bottom:calc(100% + 6px);transform-origin:bottom}.dd.open .ddl{opacity:1;visibility:visible;transform:none}
+.ddo{padding:9px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ddo:hover{background:rgba(91,91,240,.12)}.ddo.on{background:linear-gradient(90deg,rgba(91,91,240,.2),rgba(24,197,164,.1));font-weight:600}
+.ddo.on::after{content:"✓";color:var(--acc2)}.dot{width:10px;height:10px;border-radius:50%;flex:none}
 </style>
 </head>
 <body>
@@ -511,7 +530,7 @@ async function vEs(){
   const all=r.data,adm=isAdm();let cur=[];
   VB(`<header class="top"><div><h1>Spanisch</h1><p class="meta" id="vc"></p></div><button class="btn" id="vlearn">🎓 Lernmodus</button></header>
   ${adm?`<div class="card" style="margin-bottom:18px"><div class="f2"><div><label for="vde">Deutsch</label><input id="vde"></div><div><label for="ves">Spanisch</label><input id="ves"></div>
-  <div><label for="vwt">Wortart</label><select id="vwt">${Object.entries(WT).map(([k,[l]])=>`<option value="${k}">${l}</option>`).join('')}</select></div></div>
+  <div><label for="vwt">Wortart</label><select id="vwt">${Object.entries(WT).map(([k,[l,c]])=>`<option value="${k}" data-c="${c}">${l}</option>`).join('')}</select></div></div>
   <button class="btn" id="vadd">Hinzufügen</button>
   <details style="margin-top:14px"><summary class="meta" style="cursor:pointer">Mehrere auf einmal importieren</summary><p class="meta" style="margin:8px 0">Eine Zeile pro Wort: Deutsch;Spanisch;Wortart (z. B. <i>sich waschen;lavarse;Reflexivverb</i>). Ohne Wortart wird „Nomen“ genommen.</p><textarea id="vbulk" rows="5"></textarea><button class="btn ghost" id="vimp">Importieren</button></details></div>`:''}
   <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"><select id="vso"><option value="wt">Sortiert nach Wortart</option><option value="de">Deutsch A–Z</option><option value="es">Spanisch A–Z</option><option value="new">Neueste zuerst</option></select></div>
@@ -571,6 +590,34 @@ async function vBio(){
     const x=await sb.from('vocab_bio').insert({term,description:$('#bd').value.trim(),image_path});x.error?toast(x.error.message):(toast('Gespeichert'),vBio());
   };
 }
+
+/* ---------- Eigene Dropdowns (native <select> bleibt als Datenquelle erhalten) ---------- */
+(()=>{
+  const desc=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value');let open=null;
+  const close=()=>{open&&open.classList.remove('open');open=null};
+  document.addEventListener('click',e=>{if(open&&!open.contains(e.target))close()});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  function enhance(s){
+    if(s.dataset.dd)return;s.dataset.dd=1;
+    const w=document.createElement('div'),b=document.createElement('button'),l=document.createElement('div');
+    w.className='dd';b.type='button';b.className='ddb';b.setAttribute('aria-haspopup','listbox');l.className='ddl';l.setAttribute('role','listbox');
+    s.parentNode.insertBefore(w,s);w.append(s,b,l);s.classList.add('hide');
+    const dot=o=>o.dataset.c?`<b class="dot" style="background:${o.dataset.c}"></b>`:'';
+    const render=()=>{const o=s.options[s.selectedIndex];
+      b.innerHTML=`<span>${o?dot(o)+esc(o.text):''}</span><i></i>`;
+      l.innerHTML=[...s.options].map((o,i)=>`<div role="option" class="ddo ${i===s.selectedIndex?'on':''}" data-i="${i}"><span>${dot(o)}${esc(o.text)}</span></div>`).join('')};
+    Object.defineProperty(s,'value',{get(){return desc.get.call(s)},set(v){desc.set.call(s,v);render()},configurable:true});
+    const pick=i=>{if(i<0||i>=s.options.length||i===s.selectedIndex)return;s.selectedIndex=i;render();s.dispatchEvent(new Event('change',{bubbles:true}))};
+    b.onclick=()=>{if(w===open)return close();close();const r=b.getBoundingClientRect();
+      w.classList.toggle('up',innerHeight-r.bottom<280&&r.top>innerHeight-r.bottom);w.classList.add('open');open=w;
+      const on=l.querySelector('.on');on&&on.scrollIntoView({block:'nearest'})};
+    l.onclick=e=>{const o=e.target.closest('.ddo');if(o){pick(+o.dataset.i);close();b.focus()}};
+    b.onkeydown=e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();pick(s.selectedIndex+(e.key==='ArrowDown'?1:-1))}};
+    render();
+  }
+  const run=()=>document.querySelectorAll('select:not([data-dd])').forEach(enhance);
+  new MutationObserver(run).observe(document.body,{childList:true,subtree:true});run();
+})();
 
 /* ---------- Einrichtung ---------- */
 const SQL=`create table profiles(id uuid primary key references auth.users on delete cascade,email text,role text default 'user',created_at timestamptz default now());
