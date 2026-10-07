@@ -114,6 +114,15 @@ select{width:100%;background:var(--bg);border:1px solid var(--line);border-radiu
 .empty{text-align:center;color:var(--mute);padding:48px 16px}
 @media(max-width:760px){#app{grid-template-columns:1fr}aside{position:static;height:auto}#nav{flex-direction:row;flex-wrap:wrap}.ind{display:none}.nav.on{background:var(--bg)}.sidefoot{margin-top:8px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.wt{--c:#8d92b3;display:inline-block;font-size:12px;padding:2px 10px;border-radius:99px;font-weight:500;background:color-mix(in srgb,var(--c) 18%,transparent);color:color-mix(in srgb,var(--c) 65%,var(--ink))}
+button.chip{border:2px solid transparent;cursor:pointer;font:inherit;font-size:13px;opacity:.55;transition:.2s}button.chip.on{opacity:1;border-color:var(--c)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.vr td:first-child{border-left:4px solid var(--c)}
+.vbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}.vbar input,.vbar select{width:auto;flex:1;min-width:150px;margin:0}
+.lprog{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:8px}.lprog i{display:block;height:100%;background:var(--acc2);transition:width .3s}
+.lc{min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;border:1px solid var(--line);border-radius:var(--r);background:var(--bg);cursor:pointer;margin-bottom:14px}
+.lc img,.bio img{max-width:100%;max-height:200px;border-radius:10px;object-fit:cover}
+.bio{padding:0;overflow:hidden}.bio img{width:100%;height:170px;max-height:none;border-radius:0}.bio .bd{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}
 </style>
 </head>
 <body>
@@ -254,8 +263,8 @@ async function boot(session){
   const who=()=>{$('#who').textContent=guest?`Gast · noch ${fm(Math.ceil(left()/60000))}`:me.email+' · '+(adm?'Admin':'Nutzer')};
   who();
   if(guest)gTimer=setInterval(()=>{if(!left()){sb.auth.signOut();toast('Gastzugang abgelaufen')}else who()},15000);
-  const items=adm?[['admin','Admin-Zentrale','◧'],['lib','Lernbibliothek','📚'],['hist','Update-Historie','🕘']]
-    :guest?[['lib','Lernbibliothek','📚']]:[['lib','Lernbibliothek','📚'],['hist','Update-Historie','🕘']];
+  const items=adm?[['admin','Admin-Zentrale','◧'],['lib','Lernbibliothek','📚'],['vok','Vokabeln','🗣️'],['hist','Update-Historie','🕘']]
+    :guest?[['lib','Lernbibliothek','📚']]:[['lib','Lernbibliothek','📚'],['vok','Vokabeln','🗣️'],['hist','Update-Historie','🕘']];
   $('#nav').innerHTML='<span class="ind"></span>'+items.map(([k,l,i],n)=>`<button class="nav" data-p="${k}" style="--i:${n}"><span class="ic">${i}</span><span>${l}</span></button>`).join('');
   document.querySelectorAll('#nav .nav').forEach(b=>b.onclick=()=>go(b.dataset.p));
   go(items[0][0]);
@@ -269,7 +278,7 @@ function go(p){
   lastCode=null;page=p;hubOn=false;let on;
   document.querySelectorAll('#nav .nav').forEach(b=>{const a=b.dataset.p===p;b.classList.toggle('on',a);if(a)on=b});
   const ind=$('#nav .ind');if(on&&ind){ind.style.height=on.offsetHeight+'px';ind.style.transform=`translateY(${on.offsetTop}px)`;ind.style.opacity=1}
-  ({admin:()=>vHub('ov'),lib:vLib,hist:vHist})[p]()}
+  ({admin:()=>vHub('ov'),lib:vLib,vok:vVok,hist:vHist})[p]()}
 const V=h=>{const t=hubOn&&$('#ab')?$('#ab'):$('#view');t.innerHTML=h};
 
 /* ---------- Daten ---------- */
@@ -455,6 +464,112 @@ async function vHist(){
       const r=await sb.from('changelog').insert({version:v,title:t,notes:$('#hn').value.trim()});r.error?toast(r.error.message):(toast('Eintrag gespeichert'),vHist())};
     document.querySelectorAll('[data-hx]').forEach(b=>b.onclick=async()=>{if(confirm('Eintrag löschen?')){await sb.from('changelog').delete().eq('id',b.dataset.hx);vHist()}});
   }
+}
+
+/* ---------- Vokabeln ---------- */
+const WT={nomen:['Nomen','#3b82f6'],verb:['Verb','#ef4444'],reflexiv:['Reflexivverb','#a855f7'],adj:['Adjektiv','#16a34a'],adv:['Adverb','#f59e0b'],prep:['Präposition','#14b8a6'],phrase:['Ausdruck','#ec4899'],other:['Sonstiges','#8d92b3']};
+const wtTag=k=>`<span class="wt" style="--c:${(WT[k]||WT.other)[1]}">${(WT[k]||WT.other)[0]}</span>`;
+let vtab='es',vq='',vsort='wt',vact=new Set();
+const isAdm=()=>profile&&profile.role==='admin';
+const SQLV=`create table vocab_es(id bigint generated always as identity primary key,de text not null,es text not null,wortart text not null default 'nomen',created_at timestamptz default now());
+create table vocab_bio(id bigint generated always as identity primary key,term text not null,description text,image_path text,created_at timestamptz default now());
+alter table vocab_es enable row level security; alter table vocab_bio enable row level security;
+create policy "read es" on vocab_es for select to authenticated using(true);
+create policy "admin es" on vocab_es for all using(is_admin()) with check(is_admin());
+create policy "read bio" on vocab_bio for select to authenticated using(true);
+create policy "admin bio" on vocab_bio for all using(is_admin()) with check(is_admin());`;
+const missing=()=>`<p class="empty" style="padding-bottom:12px">Die Vokabel-Tabellen fehlen noch. Führe dieses SQL im Supabase SQL-Editor aus:</p><pre>${esc(SQLV)}</pre>`;
+const VB=h=>{$('#vb').innerHTML=h};
+async function vVok(t){
+  if(t)vtab=t;
+  $('#view').innerHTML=`<div class="atabs">${[['es','🇪🇸 Spanisch'],['bio','🧬 Biologie']].map(([k,l])=>`<button class="${k===vtab?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="vb"></div>`;
+  document.querySelectorAll('.atabs button').forEach(b=>b.onclick=()=>{vq='';vVok(b.dataset.t)});
+  await (vtab==='es'?vEs:vBio)();
+}
+/* Lernmodus (Karteikarten) – mk(item,rev) liefert [Vorderseite, Rückseite] */
+function learn(items,mk,title){
+  if(!items.length)return toast('Keine Einträge zum Lernen.');
+  let rev=false,q,known,total,flip;
+  openModal(`<div class="box sm"><div class="bar" style="margin:-24px -24px 16px"><h3>${esc(title)}</h3><div class="row"><button class="btn ghost" id="lrev">⇄ Richtung</button><button class="btn ghost" id="x">Schließen</button></div></div><div id="lb"></div></div>`);
+  const start=()=>{q=[...items].sort(()=>Math.random()-.5);known=0;total=q.length;flip=false;draw()};
+  const draw=()=>{
+    if(!q.length){$('#lb').innerHTML=`<div class="lc" style="cursor:default"><h2>Geschafft! 🎉</h2><p class="meta">Alle ${total} Karten gewusst.</p><button class="btn" id="lr">Nochmal</button></div>`;$('#lr').onclick=start;return}
+    const [f,b]=mk(q[0],rev);
+    $('#lb').innerHTML=`<div class="lprog"><i style="width:${known/total*100}%"></i></div><p class="meta" style="margin-bottom:10px">${known} von ${total} gewusst · ${q.length} offen</p>
+    <div class="lc" id="lcard">${flip?b:f+'<p class="meta">Klicken zum Umdrehen</p>'}</div>
+    ${flip?'<div class="row" style="justify-content:center"><button class="btn bad" id="lno">Nochmal</button><button class="btn" id="lyes" style="background:var(--acc2)">Gewusst</button></div>':''}`;
+    $('#lcard').onclick=()=>{flip=!flip;draw()};
+    if(flip){$('#lno').onclick=()=>{q.push(q.shift());flip=false;draw()};$('#lyes').onclick=()=>{q.shift();known++;flip=false;draw()}}
+  };
+  $('#lrev').onclick=()=>{rev=!rev;start()};start();
+}
+/* --- Spanisch --- */
+async function vEs(){
+  VB('<p class="empty">Lade …</p>');
+  const r=await sb.from('vocab_es').select('*').order('created_at',{ascending:false});
+  if(r.error)return VB(`<h1>Spanisch</h1>${missing()}`);
+  const all=r.data,adm=isAdm();let cur=[];
+  VB(`<header class="top"><div><h1>Spanisch</h1><p class="meta" id="vc"></p></div><button class="btn" id="vlearn">🎓 Lernmodus</button></header>
+  ${adm?`<div class="card" style="margin-bottom:18px"><div class="f2"><div><label for="vde">Deutsch</label><input id="vde"></div><div><label for="ves">Spanisch</label><input id="ves"></div>
+  <div><label for="vwt">Wortart</label><select id="vwt">${Object.entries(WT).map(([k,[l]])=>`<option value="${k}">${l}</option>`).join('')}</select></div></div>
+  <button class="btn" id="vadd">Hinzufügen</button>
+  <details style="margin-top:14px"><summary class="meta" style="cursor:pointer">Mehrere auf einmal importieren</summary><p class="meta" style="margin:8px 0">Eine Zeile pro Wort: Deutsch;Spanisch;Wortart (z. B. <i>sich waschen;lavarse;Reflexivverb</i>). Ohne Wortart wird „Nomen“ genommen.</p><textarea id="vbulk" rows="5"></textarea><button class="btn ghost" id="vimp">Importieren</button></details></div>`:''}
+  <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"><select id="vso"><option value="wt">Sortiert nach Wortart</option><option value="de">Deutsch A–Z</option><option value="es">Spanisch A–Z</option><option value="new">Neueste zuerst</option></select></div>
+  <div class="chips" id="vch"></div>
+  <div class="card tablewrap"><table><tr><th>Deutsch</th><th>Spanisch</th><th>Wortart</th>${adm?'<th></th>':''}</tr><tbody id="vl"></tbody></table></div>`);
+  $('#vso').value=vsort;
+  const view=()=>{
+    const ord=Object.keys(WT),c=(a,b)=>a.localeCompare(b,'de');
+    cur=all.filter(w=>(!vact.size||vact.has(w.wortart))&&(w.de+' '+w.es).toLowerCase().includes(vq.toLowerCase()));
+    cur.sort(vsort==='wt'?(a,b)=>ord.indexOf(a.wortart)-ord.indexOf(b.wortart)||c(a.de,b.de):vsort==='de'?(a,b)=>c(a.de,b.de):vsort==='es'?(a,b)=>c(a.es,b.es):()=>0);
+    $('#vch').innerHTML=Object.entries(WT).map(([k,[l,col]])=>`<button class="wt chip ${vact.has(k)?'on':''}" style="--c:${col}" data-k="${k}">${l} · ${all.filter(w=>w.wortart===k).length}</button>`).join('');
+    document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{const k=b.dataset.k;vact.has(k)?vact.delete(k):vact.add(k);view()});
+    $('#vl').innerHTML=cur.map(w=>`<tr class="vr" style="--c:${(WT[w.wortart]||WT.other)[1]}"><td>${esc(w.de)}</td><td><b>${esc(w.es)}</b></td><td>${wtTag(w.wortart)}</td>${adm?`<td><button class="btn ghost" data-x="${w.id}" aria-label="Löschen">✕</button></td>`:''}</tr>`).join('')||'<tr><td colspan=4 class="empty">Keine Wörter gefunden.</td></tr>';
+    $('#vc').textContent=`${cur.length} von ${all.length} Wörtern`;
+  };
+  view();
+  $('#vs').oninput=e=>{vq=e.target.value;view()};$('#vso').onchange=e=>{vsort=e.target.value;view()};
+  $('#vl').onclick=async e=>{const b=e.target.closest('[data-x]');if(!b||!confirm('Wort löschen?'))return;await sb.from('vocab_es').delete().eq('id',b.dataset.x);vEs()};
+  $('#vlearn').onclick=()=>learn(cur,(w,rev)=>{const d=`<h2>${esc(w.de)}</h2>`,s=`<h2>${esc(w.es)}</h2>`;return rev?[s+wtTag(w.wortart),d]:[d+wtTag(w.wortart),s]},'Spanisch lernen');
+  if(adm){
+    $('#vadd').onclick=async()=>{const de=$('#vde').value.trim(),es=$('#ves').value.trim();if(!de||!es)return toast('Deutsch und Spanisch ausfüllen.');
+      const x=await sb.from('vocab_es').insert({de,es,wortart:$('#vwt').value});x.error?toast(x.error.message):(toast('Gespeichert'),vEs())};
+    $('#vimp').onclick=async()=>{
+      const rows=$('#vbulk').value.split('\n').map(l=>l.split(/[;\t]/).map(s=>s.trim())).filter(a=>a[0]&&a[1]).map(([de,es,w])=>({de,es,wortart:(Object.entries(WT).find(([k,[l]])=>w&&(k===w.toLowerCase()||l.toLowerCase()===w.toLowerCase()))||['nomen'])[0]}));
+      if(!rows.length)return toast('Keine gültigen Zeilen.');
+      const x=await sb.from('vocab_es').insert(rows);x.error?toast(x.error.message):(toast(rows.length+' Wörter importiert'),vEs())};
+  }
+}
+/* --- Biologie --- */
+async function vBio(){
+  VB('<p class="empty">Lade …</p>');
+  const r=await sb.from('vocab_bio').select('*').order('term');
+  if(r.error)return VB(`<h1>Biologie</h1>${missing()}`);
+  const all=r.data,adm=isAdm(),urls={},paths=all.map(w=>w.image_path).filter(Boolean);
+  if(paths.length){const s=await sb.storage.from(BUCKET).createSignedUrls(paths,3600);if(!s.error)s.data.forEach(o=>urls[o.path]=o.signedUrl);
+    paths.forEach(p=>{urls[p]=urls[p]||sb.storage.from(BUCKET).getPublicUrl(p).data.publicUrl})}
+  const img=w=>w.image_path?`<img src="${esc(urls[w.image_path])}" alt="${esc(w.term)}" loading="lazy">`:'';
+  VB(`<header class="top"><div><h1>Biologie</h1><p class="meta" id="vc"></p></div><button class="btn" id="vlearn">🎓 Lernmodus</button></header>
+  ${adm?`<div class="card" style="margin-bottom:18px"><label for="bt">Vokabel</label><input id="bt"><label for="bd">Beschreibung</label><textarea id="bd" rows="3"></textarea>
+  <label for="bf">Bild (optional)</label><input id="bf" type="file" accept="image/*"><button class="btn" id="badd">Hinzufügen</button></div>`:''}
+  <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"></div><div class="grid" id="vl"></div>`);
+  let cur=[];
+  const view=()=>{
+    const q=vq.toLowerCase();cur=all.filter(w=>(w.term+' '+(w.description||'')).toLowerCase().includes(q));
+    $('#vl').innerHTML=cur.map(w=>`<div class="card bio">${img(w)}<div class="bd"><h3>${esc(w.term)}</h3><p class="meta" style="font-size:14px;white-space:pre-wrap">${esc(w.description||'')}</p>${adm?`<div class="row" style="margin-top:auto"><button class="btn ghost" data-x="${w.id}">Löschen</button></div>`:''}</div></div>`).join('')||'<p class="empty">Keine Vokabeln gefunden.</p>';
+    $('#vc').textContent=`${cur.length} von ${all.length} Vokabeln`;
+  };
+  view();
+  $('#vs').oninput=e=>{vq=e.target.value;view()};
+  $('#vl').onclick=async e=>{const b=e.target.closest('[data-x]');if(!b)return;const w=all.find(x=>x.id==b.dataset.x);if(!confirm(`„${w.term}“ löschen?`))return;
+    if(w.image_path)await sb.storage.from(BUCKET).remove([w.image_path]);await sb.from('vocab_bio').delete().eq('id',w.id);vBio()};
+  $('#vlearn').onclick=()=>learn(cur,(w,rev)=>{const d=`${img(w)}<p>${esc(w.description||'')}</p>`,t=`<h2>${esc(w.term)}</h2>`;return rev?[d,t]:[t,d+''] },'Biologie lernen');
+  if(adm)$('#badd').onclick=async()=>{
+    const term=$('#bt').value.trim();if(!term)return toast('Vokabel eingeben.');
+    let image_path=null;const f=$('#bf').files[0];
+    if(f){image_path=`bio/${Date.now()}_${f.name.replace(/[^\w.-]/g,'_')}`;const u=await sb.storage.from(BUCKET).upload(image_path,f,{contentType:f.type});if(u.error)return toast(u.error.message)}
+    const x=await sb.from('vocab_bio').insert({term,description:$('#bd').value.trim(),image_path});x.error?toast(x.error.message):(toast('Gespeichert'),vBio());
+  };
 }
 
 /* ---------- Einrichtung ---------- */
