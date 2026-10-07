@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'">
 <title>Lernhub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -165,6 +167,84 @@ input[type=checkbox]:checked::after{transform:rotate(-45deg) scale(1)}
 @keyframes chk{from{transform:scale(0) rotate(-90deg)}}
 @keyframes fall{to{top:105%;opacity:.7}}
 @media(prefers-reduced-motion:reduce){.confetti{display:none}}
+/* Lernkarte: einfaches Umdrehen statt 3D (kein Überlappen, kein Ruckeln) */
+.fc{perspective:none}
+.fc-in{transform-style:flat;transition:transform .18s ease;will-change:transform}
+.fc.flip .fc-in{transform:none}
+.fc.turning .fc-in,.fc.flip.turning .fc-in{transform:scaleX(0)}
+.fc .face{backface-visibility:visible;-webkit-backface-visibility:visible;transition:none}
+.fc .face.back{display:none;transform:none}
+.fc.flip .face:not(.back){display:none}.fc.flip .face.back{display:flex}
+.fc:not(.flip):hover .face{transform:none;border-color:var(--acc)}
+/* Bio-Kategorien */
+details.cat{margin-bottom:22px}
+details.cat summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;margin-bottom:12px;padding:8px 2px;border-bottom:1px solid var(--line)}
+details.cat summary::-webkit-details-marker{display:none}
+details.cat summary::before{content:"";width:8px;height:8px;border:solid var(--mute);border-width:0 2px 2px 0;transform:rotate(-45deg);transition:transform .2s}
+details.cat[open] summary::before{transform:rotate(45deg)}
+details.cat summary h2{font-size:18px;margin:0}
+.privlink{color:var(--acc);cursor:pointer;text-decoration:underline}
+.priv h3{margin:16px 0 4px;font-size:15px}.priv p,.priv li{font-size:14px;line-height:1.55;color:var(--mute)}.priv ul{padding-left:18px}
+/* ===== Tutorial-Player ===== */
+.tv-stage{position:relative;height:300px;border-radius:14px;overflow:hidden;border:1px solid var(--line);display:grid;place-items:center;background:radial-gradient(circle at 15% 10%,rgba(91,91,240,.32),transparent 55%),radial-gradient(circle at 90% 95%,rgba(24,197,164,.28),transparent 50%),var(--bg)}
+.tv-stage>*{max-width:100%}
+.tv-cap{min-height:88px;text-align:center;margin:14px 0 10px;animation:tvup .5s both}.tv-cap h4{font-size:18px;margin-bottom:4px}.tv-cap p{font-size:14px;color:var(--mute);max-width:560px;margin:0 auto;line-height:1.5}
+.tv-prog{display:flex;gap:6px;margin-bottom:14px}.tv-prog button{flex:1;height:6px;border:0;padding:0;border-radius:9px;background:var(--line);overflow:hidden;cursor:pointer;min-width:0}
+.tv-prog i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2))}.tv-prog .done i{width:100%}.tv-prog .active i{animation:tvfill var(--d) linear forwards}
+.tv.paused *{animation-play-state:paused!important}
+.tv-win{width:min(420px,88%);position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;box-shadow:0 18px 40px rgba(0,0,0,.25);font-size:13px;animation:tvpop .6s cubic-bezier(.34,1.4,.5,1) both}
+.tv-tabs{display:flex;gap:4px;margin-bottom:10px;height:30px}.tv-tabs span{flex:1;display:grid;place-items:center;border-radius:8px;color:var(--mute);background:var(--bg)}.tv-tabs .on{color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2))}
+.tv-tab{animation:tvtab .4s .5s both}@keyframes tvtab{from{background:var(--bg);color:var(--mute)}to{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff}}
+.tv-in{height:32px;border:1px solid var(--line);border-radius:8px;background:var(--bg);display:flex;align-items:center;gap:8px;padding:0 10px;margin-bottom:8px;font-family:monospace;overflow:hidden;white-space:nowrap}
+.tv-in em{font-style:normal;font-family:inherit;color:var(--mute);font-size:11px;margin-left:auto}
+.tv-ty{display:inline-block;overflow:hidden;white-space:nowrap;width:0;border-right:2px solid var(--acc);animation:tvty calc(var(--n)*.08s) steps(var(--n)) var(--d) forwards,tvblink .6s step-end infinite}
+@keyframes tvty{to{width:calc(var(--n)*1ch)}}@keyframes tvblink{50%{border-color:transparent}}
+.tv-btn{margin-top:6px;height:36px;display:grid;place-items:center;border-radius:9px;color:#fff;font-weight:600;background:linear-gradient(135deg,var(--acc),var(--acc2));animation:tvpress .5s var(--d) both}
+@keyframes tvpress{50%{transform:scale(.94);filter:brightness(1.25)}}
+.tv-str{height:6px;border-radius:9px;background:var(--line);overflow:hidden;margin:0 0 8px}.tv-str i{display:block;height:100%;width:0;animation:tvstr 1.6s 3.2s forwards}
+@keyframes tvstr{0%{width:10%;background:var(--bad)}50%{width:55%;background:#f59e0b}100%{width:100%;background:var(--acc2)}}
+.tv-cur{position:absolute;z-index:6;width:22px;height:22px;left:var(--x1);top:var(--y1);pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));animation:tvcur 1.2s cubic-bezier(.5,0,.2,1) var(--d) forwards}
+.tv-cur::before{content:"";position:absolute;inset:0;background:#fff;border:0;clip-path:polygon(0 0,0 100%,30% 78%,48% 100%,62% 93%,45% 70%,80% 70%)}
+.tv-cur::after{content:"";position:absolute;left:-9px;top:-9px;width:14px;height:14px;border-radius:50%;border:2px solid var(--acc2);opacity:0;animation:tvrip .5s ease-out calc(var(--d) + 1.15s)}
+@keyframes tvcur{to{left:var(--x2);top:var(--y2)}}@keyframes tvrip{from{opacity:1;transform:scale(.4)}to{opacity:0;transform:scale(3)}}
+.tv-hero{text-align:center;display:grid;gap:10px;justify-items:center}.tv-word{font-size:40px;font-weight:800;letter-spacing:.02em;display:flex}.tv-word span{display:inline-block;animation:tvup .6s calc(.5s + var(--i)*.08s) both}
+.tv-sub{color:var(--mute);animation:tvup .6s 1.4s both}
+.tv-row3{display:flex;gap:10px;position:relative;padding:4px}
+.tv-card{width:124px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:6px;font-size:12px;animation:tvup .6s calc(var(--i)*.15s + .2s) both;box-shadow:0 8px 20px rgba(0,0,0,.15)}
+.tv-card .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700;background:linear-gradient(135deg,var(--acc),var(--acc2));margin-bottom:2px}
+.tv-card .ln,.tv-win .ln{height:7px;border-radius:9px;background:var(--line);margin:2px 0}.ln.s{width:60%}
+.tv-mini{text-align:center;padding:5px;border-radius:8px;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));font-weight:600}.tv-mini.g{background:var(--bg);color:var(--mute);border:1px solid var(--line)}
+.tv-card.sel{animation:tvup .6s .5s both,tvglow .8s 2.6s forwards}@keyframes tvglow{to{border-color:var(--acc2);box-shadow:0 0 0 3px rgba(24,197,164,.4),0 12px 28px rgba(0,0,0,.25);transform:translateY(-6px) scale(1.05)}}
+.tv-fcw{position:relative;width:260px;height:206px}.tv-pb{height:7px;border-radius:9px;background:var(--line);overflow:hidden}.tv-pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));animation:tvpb 6s linear forwards}
+@keyframes tvpb{0%,70%{width:0}78%,100%{width:34%}}
+.tv-fc{position:absolute;left:0;right:0;top:20px;height:120px;border-radius:14px;border:1px solid var(--line);background:var(--panel);box-shadow:0 10px 24px rgba(0,0,0,.2);display:grid;place-items:center;animation:tvfc 6s linear forwards}
+.tv-fc b{grid-area:1/1;font-size:22px}.tv-fc .f{animation:tvf1 6s linear forwards}.tv-fc .bk{animation:tvf2 6s linear forwards;color:var(--acc2)}
+@keyframes tvfc{0%{opacity:0;transform:translateY(20px)}8%{opacity:1;transform:none}25%{transform:scaleX(1)}29%{transform:scaleX(0)}33%{transform:scaleX(1)}66%{opacity:1;transform:none}76%{transform:translateX(120%) rotate(12deg);opacity:0}100%{opacity:0}}
+@keyframes tvf1{0%,29%{opacity:1}29.1%,100%{opacity:0}}@keyframes tvf2{0%,29%{opacity:0}29.1%,100%{opacity:1}}
+.tv-fb{position:absolute;left:0;right:0;top:156px;display:flex;gap:8px;justify-content:center;animation:tvfb 6s linear forwards}.tv-fb span{flex:1;text-align:center;padding:8px;border-radius:9px;font-weight:600;background:var(--bg);border:1px solid var(--line)}.tv-fb .y{color:#fff;border:0;background:var(--acc2);animation:tvgy 6s linear forwards}
+@keyframes tvfb{0%,30%{opacity:0;transform:translateY(10px)}36%,100%{opacity:1;transform:none}}@keyframes tvgy{0%,56%{transform:none}60%{transform:scale(.9)}64%,100%{transform:none}}
+.tv-cur2{position:absolute;z-index:6;width:22px;height:22px;left:100%;top:200px;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.45));animation:tvcur2 6s ease-in-out forwards}
+.tv-cur2::before{content:"";position:absolute;inset:0;background:#fff;clip-path:polygon(0 0,0 100%,30% 78%,48% 100%,62% 93%,45% 70%,80% 70%)}
+.tv-cur2::after{content:"";position:absolute;left:-9px;top:-9px;width:14px;height:14px;border-radius:50%;border:2px solid var(--acc2);animation:tvrip2 6s linear forwards;opacity:0}
+@keyframes tvcur2{0%{left:100%;top:200px}20%,27%{left:50%;top:70px}58%,100%{left:72%;top:172px}}
+@keyframes tvrip2{0%,22%{opacity:0;transform:scale(.4)}24%{opacity:1;transform:scale(.4)}30%,56%{opacity:0;transform:scale(3)}58%{opacity:1;transform:scale(.4)}64%,100%{opacity:0;transform:scale(3)}}
+.tv-chips{display:flex;gap:6px;margin-bottom:10px}.tv-chips .wt{flex:none;opacity:.6}.tv-chips .glow{animation:tvchip .4s 2.9s forwards}@keyframes tvchip{to{opacity:1;box-shadow:0 0 0 2px var(--c)}}
+.tv-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border-left:4px solid var(--c);background:var(--bg);border-radius:6px;margin-bottom:5px;max-height:40px;overflow:hidden;animation:tvup .5s calc(var(--i)*.12s + .3s) both}
+.tv-row.hd{animation:tvup .5s calc(var(--i)*.12s + .3s) both,tvhide .5s 3.5s forwards}@keyframes tvhide{to{opacity:0;max-height:0;padding-top:0;padding-bottom:0;margin:0}}
+.tv-ring{position:relative;width:96px;height:96px}.tv-ring svg{transform:rotate(-90deg)}.tv-ring circle{fill:none;stroke-width:8;stroke-linecap:round}
+.tv-ring .bg{stroke:var(--line)}.tv-ring .fg{stroke:var(--acc2);stroke-dasharray:264;stroke-dashoffset:0;animation:tvring 4.5s linear forwards}.tv-ring b{position:absolute;inset:0;display:grid;place-items:center;font-size:15px}
+@keyframes tvring{to{stroke-dashoffset:70}}
+.tv-time{display:flex;gap:26px;align-items:center;animation:tvup .6s both}.tv-dl{position:relative;padding:10px 16px;border-radius:10px;background:var(--bg);border:1px dashed var(--mute);color:var(--mute);animation:tvshake .5s 1.4s}.tv-dl::after{content:"🔒";position:absolute;right:-12px;top:-14px;font-size:22px;animation:tvpop .5s .9s both}
+@keyframes tvshake{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.tv-ok{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-size:42px;color:#fff;background:linear-gradient(135deg,var(--acc),var(--acc2));animation:tvpop .7s cubic-bezier(.34,1.56,.64,1) var(--d,.2s) both}
+.tv-over{position:absolute;inset:0;display:grid;place-items:center;background:rgba(5,6,15,.45);border-radius:12px;z-index:5;animation:tvfade .3s var(--d) both}
+.tv-big{font-size:64px;animation:tvdrop .9s cubic-bezier(.34,1.5,.5,1) both}
+@keyframes tvup{from{opacity:0;transform:translateY(14px)}}@keyframes tvpop{from{opacity:0;transform:scale(.6)}}@keyframes tvfade{from{opacity:0}}@keyframes tvfill{to{width:100%}}@keyframes tvdrop{from{opacity:0;transform:translateY(-70px) rotate(-14deg)}}
+@media(max-width:560px){.tv-stage{height:270px}.tv-card{width:96px;padding:8px}.tv-word{font-size:30px}}
+@media(prefers-reduced-motion:reduce){.tv *{animation-duration:.01s!important;animation-delay:0s!important}}
+/* Sicherheit/Protokoll */
+.pwh{font-size:12px;margin:-6px 0 10px}.cnt{font-weight:400;font-size:12px;color:var(--mute);float:right}
+.lg td{font-size:13px;vertical-align:top}.lg .dt{white-space:nowrap;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -180,13 +260,15 @@ const BUCKET = "packages";
   <div class="card">
     <div class="brand"><span class="logo"></span>Lernhub</div>
     <div class="tabs"><button class="on" data-m="in">Anmelden</button><button data-m="up">Registrieren</button><button data-m="guest">Gast</button></div>
-    <div id="f-acc"><label for="em">E-Mail</label><input id="em" type="email" autocomplete="email">
-    <label for="pw">Passwort</label><input id="pw" type="password" autocomplete="current-password"></div>
+    <div id="f-acc"><div id="f-nm" class="hide"><label for="nm">Anzeigename <span class="cnt" id="nmc">0/20</span></label><input id="nm" maxlength="20" autocomplete="nickname" placeholder="3–20 Zeichen"></div>
+    <label for="em">E-Mail</label><input id="em" type="email" autocomplete="email" maxlength="254">
+    <label for="pw">Passwort</label><input id="pw" type="password" autocomplete="current-password" maxlength="72"><p class="meta pwh hide" id="pwh">Mindestens 10 Zeichen, mit Buchstaben und Zahl.</p></div>
     <div id="f-guest" class="hide"><label for="gc">Gast-Code</label><input id="gc" placeholder="XXXX-XXXX-XXXX" autocomplete="off" style="text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px"><p class="meta" style="margin-bottom:12px">Den Code erhältst du von einem Administrator.</p></div>
     <label>Sicherheitsabfrage</label>
     <div class="cap"><canvas id="cv" width="170" height="54" aria-label="Captcha"></canvas><button class="btn ghost" id="cr" type="button" aria-label="Neues Captcha">↻</button></div>
     <input id="cc" placeholder="Zeichen aus dem Bild" autocomplete="off" maxlength="6">
     <button class="btn" id="go" style="width:100%">Anmelden</button>
+    <p class="meta" style="text-align:center;margin-top:12px"><a href="#" class="tutlink privlink" style="text-decoration:none">▶ Kurz-Tutorial</a> · <a href="#" class="privlink">Datenschutz</a></p>
     <p id="amsg" class="meta" style="margin-top:12px"></p>
   </div>
 </section>
@@ -199,6 +281,8 @@ const BUCKET = "packages";
       <div class="sec">Einstellungen</div>
       <button class="tool" id="theme"><span class="ic">◐</span>Design wechseln<span class="sw"><i></i></span></button>
       <div class="who" id="who"></div>
+      <button class="tool tutlink"><span class="ic">▶</span>Tutorial</button>
+      <button class="tool privlink"><span class="ic">🔒</span>Datenschutz</button>
       <hr>
       <button class="tool danger" id="out"><span class="ic">⎋</span>Abmelden</button>
     </div>
@@ -234,7 +318,8 @@ const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.remove('hide');e
 
 const configured=!SUPABASE_URL.includes('DEIN-PROJEKT');
 const sb=configured?supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
-let me=null,profile=null,page='';
+let me=null,profile=null,page='',loggedFor=null;
+const logEv=(a,d,who)=>{try{return sb?sb.rpc('log_event',{a,d:d?String(d).slice(0,300):null,who:who?String(who).slice(0,80):null}).then(()=>{},()=>{}):Promise.resolve()}catch(e){return Promise.resolve()}};
 
 /* ---------- Auth ---------- */
 let mode='in',cap='',fails=0,lock=0,busy=false,lastCode=null,gTimer;
@@ -251,9 +336,13 @@ function newCap(){
 $('#cr').onclick=newCap;newCap();
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{
   mode=b.dataset.m;document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));
-  $('#f-acc').classList.toggle('hide',mode==='guest');$('#f-guest').classList.toggle('hide',mode!=='guest');
+  $('#f-acc').classList.toggle('hide',mode==='guest');$('#f-nm').classList.toggle('hide',mode!=='up');$('#pwh').classList.toggle('hide',mode!=='up');$('#pw').autocomplete=mode==='up'?'new-password':'current-password';$('#f-guest').classList.toggle('hide',mode!=='guest');
   $('#go').textContent={in:'Anmelden',up:'Konto erstellen',guest:'Mit Code eintreten'}[mode];$('#amsg').textContent='';newCap()});
-const fail=()=>{if(++fails>=5){lock=Date.now()+30000;fails=0}};
+let lvl=0;const LK='lh_lk';
+try{const o=JSON.parse(localStorage.getItem(LK)||'{}');lock=o.until||0;lvl=o.lvl||0;fails=o.fails||0}catch(e){}
+const saveLk=()=>{try{localStorage.setItem(LK,JSON.stringify({until:lock,lvl,fails}))}catch(e){}};
+const fail=()=>{if(++fails>=5){lvl=Math.min(lvl+1,5);lock=Date.now()+30000*2**(lvl-1);fails=0;logEv('lockout','Sperre '+Math.round(30*2**(lvl-1))+' s',$('#em').value.trim())}saveLk()};
+$('#nm').oninput=()=>{$('#nmc').textContent=$('#nm').value.length+'/20'};
 $('#go').onclick=async()=>{
   const m=$('#amsg');
   if(!configured){m.textContent='Trage zuerst SUPABASE_URL und SUPABASE_ANON_KEY im Code ein.';return}
@@ -272,17 +361,20 @@ $('#go').onclick=async()=>{
         else{const r=await sb.rpc('redeem_guest_code',{c:code});
           if(r.error){error={message:'Code ungültig, abgelaufen oder bereits benutzt.'};await sb.auth.signOut()}}
         busy=false;
-        if(!error){fails=0;boot((await sb.auth.getSession()).data.session);return}
+        if(!error){fails=0;lvl=0;saveLk();boot((await sb.auth.getSession()).data.session);return}
       }
     }else{
-      const email=$('#em').value.trim(),password=$('#pw').value;
-      ({error}=mode==='in'?await sb.auth.signInWithPassword({email,password}):await sb.auth.signUp({email,password}));
+      const email=$('#em').value.trim().toLowerCase(),password=$('#pw').value;
+      if(mode==='up'){
+        const nm=$('#nm').value.trim().replace(/\s+/g,' '),pe=checkName(nm)||checkPw(password,email);
+        if(pe)error={message:pe,soft:true};else({error}=await sb.auth.signUp({email,password,options:{data:{name:nm}}}));
+      }else ({error}=await sb.auth.signInWithPassword({email,password}));
     }
   }catch(e){busy=false;error={message:'Verbindungsfehler: '+e.message}}
-  if(error){fail();m.textContent=error.message==='Invalid login credentials'?'E-Mail oder Passwort falsch (oder E-Mail noch nicht bestätigt).':error.message;newCap();return}
-  fails=0;m.textContent=mode==='up'?'Konto erstellt. Bestätige ggf. deine E-Mail und melde dich an.':'';newCap();
+  if(error){if(!error.soft){fail();logEv(mode==='guest'?'guest_failed':mode==='up'?'signup_failed':'login_failed',String(error.message).slice(0,120),mode==='guest'?'':$('#em').value.trim())}m.textContent=error.message==='Invalid login credentials'?'E-Mail oder Passwort falsch (oder E-Mail noch nicht bestätigt).':error.message;newCap();return}
+  fails=0;lvl=0;saveLk();if(mode==='up')logEv('signup','Neues Konto',$('#em').value.trim());m.textContent=mode==='up'?'Konto erstellt. Bestätige ggf. deine E-Mail und melde dich an.':'';newCap();
 };
-$('#out').onclick=()=>sb.auth.signOut();
+$('#out').onclick=async()=>{await logEv('logout');loggedFor=null;sb.auth.signOut()};
 const dk=()=>getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()==='#0d0e1a';
 const syncTheme=()=>$('#theme').classList.toggle('dark',dk());
 $('#theme').onclick=()=>{document.documentElement.dataset.theme=dk()?'light':'dark';syncTheme()};
@@ -293,7 +385,7 @@ syncTheme();
 async function boot(session){
   if(busy&&session)return;
   clearInterval(gTimer);
-  if(!session){stopSync();me=null;profile=null;$('#app').classList.add('hide');$('#auth').classList.remove('hide');return}
+  if(!session){clearInterval(idleT);loggedFor=null;stopSync();me=null;profile=null;$('#app').classList.add('hide');$('#auth').classList.remove('hide');return}
   me=session.user;
   const {data}=await sb.from('profiles').select('*').eq('id',me.id).single();
   profile=data||{role:'user',email:me.email};
@@ -302,7 +394,7 @@ async function boot(session){
     await sb.auth.signOut();$('#amsg').textContent='Kein gültiger Gastzugang.';return}
   $('#auth').classList.add('hide');$('#app').classList.remove('hide');
   const left=()=>Math.max(0,new Date(profile.guest_until)-Date.now());
-  const who=()=>{$('#who').textContent=guest?`Gast · noch ${fm(Math.ceil(left()/60000))}`:me.email+' · '+(adm?'Admin':'Nutzer')};
+  const who=()=>{$('#who').textContent=guest?`Gast · noch ${fm(Math.ceil(left()/60000))}`:(profile.display_name||(me.user_metadata&&me.user_metadata.name)||me.email)+' · '+(adm?'Admin':'Nutzer')};
   who();
   if(guest)gTimer=setInterval(()=>{if(!left()){sb.auth.signOut();toast('Gastzugang abgelaufen')}else who()},15000);
   const items=adm?[['admin','Admin-Zentrale','◧'],['lib','Lernbibliothek','📚'],['vok','Vokabeln','🗣️'],['hist','Update-Historie','🕘']]
@@ -311,6 +403,9 @@ async function boot(session){
   document.querySelectorAll('#nav .nav').forEach(b=>b.onclick=()=>go(b.dataset.p));
   guest?stopSync():startSync();
   go(items[0][0]);
+  if(loggedFor!==me.id){loggedFor=me.id;logEv(guest?'guest_login':'login',guest?'Gastzugang':(adm?'Admin':'Nutzer'))}
+  if(!guest)startIdle();
+  const tk=guest?'guest':'new';if(!adm&&!tutSeen(tk))setTimeout(()=>{if(!$('#modal').firstChild)showTutorial(tk)},900);
 }
 if(configured){
   // Supabase-Aufrufe NICHT direkt im Listener ausführen (Deadlock), daher setTimeout
@@ -367,14 +462,14 @@ function openModal(h){$('#modal').innerHTML=`<div class="modal">${h}</div>`;cons
 
 /* ---------- Admin ---------- */
 let atab='ov',hubOn=false;
-const TABS=[['ov','Übersicht'],['pk','Lernpakete'],['gc','Gast-Codes'],['qr','QR-Generator'],['us','Nutzer']];
+const TABS=[['ov','Übersicht'],['pk','Lernpakete'],['gc','Gast-Codes'],['qr','QR-Generator'],['us','Nutzer'],['lg','Protokoll']];
 async function vHub(tab){
   if(!profile||profile.role!=='admin')return go('lib');
   if(typeof tab==='string')atab=tab;
   hubOn=true;
   $('#view').innerHTML=`<div class="atabs" role="tablist">${TABS.map(([k,l])=>`<button role="tab" class="${k===atab?'on':''}" data-t="${k}">${l}</button>`).join('')}</div><div id="ab"></div>`;
   document.querySelectorAll('.atabs button').forEach(b=>b.onclick=()=>vHub(b.dataset.t));
-  await ({ov:vAdmin,pk:vUpload,gc:vGuests,qr:vQR,us:vUsers})[atab]();
+  await ({ov:vAdmin,pk:vUpload,gc:vGuests,qr:vQR,us:vUsers,lg:vLog})[atab]();
 }
 async function vAdmin(){
   V('<p class="empty">Lade …</p>');
@@ -392,7 +487,7 @@ async function vUpload(){
   const pk=await getPkgs();
   V(`<header class="top"><div><h1>Pakete verwalten</h1><p class="meta">Lade ZIP-Dateien mit deinen Lerninhalten hoch. Enthalten sein sollte eine index.html.</p></div></header>
   <div class="card" style="margin-bottom:20px"><div class="drop" id="drop">ZIP hierher ziehen oder klicken<br><b id="fn"></b></div><input type="file" id="fi" accept=".zip" class="hide">
-  <label for="t">Titel</label><input id="t"><label for="d">Beschreibung</label><textarea id="d" rows="2"></textarea><button class="btn" id="up">Hochladen</button></div>
+  <label for="t">Titel</label><input id="t" maxlength="80"><label for="d">Beschreibung</label><textarea id="d" rows="2" maxlength="500"></textarea><button class="btn" id="up">Hochladen</button></div>
   <div class="card tablewrap"><table><tr><th>Titel</th><th>Größe</th><th>Downloads</th><th></th></tr>
   ${pk.map(p=>`<tr><td>${esc(p.title)}</td><td>${kb(p.size||0)}</td><td>${p.downloads||0}</td><td class="row"><button class="btn ghost" data-v="${p.id}">Ansehen</button><button class="btn bad" data-x="${p.id}">Löschen</button></td></tr>`).join('')||'<tr><td colspan=4 class="empty">Noch keine Pakete.</td></tr>'}</table></div>`);
   const set=f=>{if(f&&/\.zip$/i.test(f.name)){file=f;$('#fn').textContent=f.name;if(!$('#t').value)$('#t').value=f.name.replace(/\.zip$/i,'')}else toast('Bitte eine ZIP-Datei wählen.')};
@@ -400,26 +495,26 @@ async function vUpload(){
   dr.ondragover=e=>{e.preventDefault();dr.classList.add('over')};dr.ondragleave=()=>dr.classList.remove('over');
   dr.ondrop=e=>{e.preventDefault();dr.classList.remove('over');set(e.dataTransfer.files[0])};
   $('#up').onclick=async()=>{
-    if(!file||!$('#t').value.trim())return toast('ZIP und Titel werden benötigt.');
+    if(!file||!$('#t').value.trim())return toast('ZIP und Titel werden benötigt.');if(file.size>52428800)return toast('Die ZIP-Datei ist größer als 50 MB.');
     $('#up').textContent='Lädt hoch …';
     const path=`${Date.now()}_${file.name.replace(/[^\w.-]/g,'_')}`;
     const {error}=await sb.storage.from(BUCKET).upload(path,file,{contentType:'application/zip'});
     if(error){toast(error.message);$('#up').textContent='Hochladen';return}
     const r=await sb.from('packages').insert({title:$('#t').value.trim(),description:$('#d').value.trim(),file_path:path,size:file.size});
     if(r.error)return toast(r.error.message);
-    file=null;toast('Paket veröffentlicht');vUpload();
+    logEv('package_upload',$('#t').value.trim());file=null;toast('Paket veröffentlicht');vUpload();
   };
   const by=id=>pk.find(p=>p.id==id);
   document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>preview(by(b.dataset.v)));
   document.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{const p=by(b.dataset.x);if(!confirm(`„${p.title}“ löschen?`))return;
-    await sb.storage.from(BUCKET).remove([p.file_path]);await sb.from('packages').delete().eq('id',p.id);toast('Gelöscht');vUpload()});
+    await sb.storage.from(BUCKET).remove([p.file_path]);await sb.from('packages').delete().eq('id',p.id);logEv('package_delete',p.title);toast('Gelöscht');vUpload()});
 }
 async function vUsers(){
   const {data}=await sb.from('profiles').select('*').not('email','is',null).order('created_at',{ascending:false});
-  V(`<header class="top"><div><h1>Nutzer</h1><p class="meta">Rollen verwalten</p></div></header><div class="card tablewrap"><table><tr><th>E-Mail</th><th>Rolle</th><th>Seit</th><th></th></tr>
-  ${(data||[]).map(u=>`<tr><td>${esc(u.email)}</td><td><span class="badge">${u.role}</span></td><td>${new Date(u.created_at).toLocaleDateString('de-DE')}</td>
+  V(`<header class="top"><div><h1>Nutzer</h1><p class="meta">Rollen verwalten</p></div></header><div class="card tablewrap"><table><tr><th>E-Mail</th><th>Name</th><th>Rolle</th><th>Seit</th><th></th></tr>
+  ${(data||[]).map(u=>`<tr><td>${esc(u.email)}</td><td>${esc(u.display_name||'–')}</td><td><span class="badge">${u.role}</span></td><td>${new Date(u.created_at).toLocaleDateString('de-DE')}</td>
   <td>${u.id===me.id?'':`<button class="btn ghost" data-r="${u.id}" data-n="${u.role==='admin'?'user':'admin'}">${u.role==='admin'?'Zum Nutzer machen':'Zum Admin machen'}</button>`}</td></tr>`).join('')}</table></div>`);
-  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=async()=>{await sb.from('profiles').update({role:b.dataset.n}).eq('id',b.dataset.r);toast('Rolle geändert');vUsers()});
+  document.querySelectorAll('[data-r]').forEach(b=>b.onclick=async()=>{await sb.from('profiles').update({role:b.dataset.n}).eq('id',b.dataset.r);logEv('role_change',b.closest('tr').children[0].textContent+' → '+b.dataset.n);toast('Rolle geändert');vUsers()});
 }
 
 /* ---------- Gast-Codes ---------- */
@@ -482,11 +577,11 @@ async function vGuests(){
     const mins=Math.round(+$('#gd').value*+$('#gdu').value),hrs=Math.round(+$('#gw').value*+$('#gwu').value);
     if(!(mins>=5))return toast('Mindestdauer: 5 Minuten.');if(!(hrs>=1))return toast('Einlösefrist: mindestens 1 Stunde.');
     const {data:code,error}=await sb.rpc('create_guest_code',{mins,valid_hours:hrs,pkgs:ids});
-    if(error)return toast(error.message);lastCode=code;vGuests()};
+    if(error)return toast(error.message);lastCode=code;logEv('code_created',ids.length+' Pakete · '+fm(mins));vGuests()};
   $('#cpc')&&($('#cpc').onclick=()=>{navigator.clipboard.writeText(lastCode);toast('Kopiert')});
   $('#qrl')&&($('#qrl').onclick=()=>showQR(lastCode));
   document.querySelectorAll('[data-qr]').forEach(b=>b.onclick=()=>showQR(b.dataset.qr));
-  document.querySelectorAll('[data-rv]').forEach(b=>b.onclick=async()=>{if(!confirm('Code widerrufen? Aktive Gäste werden sofort gesperrt.'))return;await sb.from('guest_codes').update({revoked:true}).eq('id',b.dataset.rv);vGuests()});
+  document.querySelectorAll('[data-rv]').forEach(b=>b.onclick=async()=>{if(!confirm('Code widerrufen? Aktive Gäste werden sofort gesperrt.'))return;await sb.from('guest_codes').update({revoked:true}).eq('id',b.dataset.rv);logEv('code_revoked');vGuests()});
 }
 
 /* ---------- Update-Historie ---------- */
@@ -515,13 +610,18 @@ const wtTag=k=>`<span class="wt" style="--c:${(WT[k]||WT.other)[1]}">${(WT[k]||W
 let vtab='es',vq='',vsort='wt',vact=new Set();
 const isAdm=()=>profile&&profile.role==='admin';
 const SQLV=`create table vocab_es(id bigint generated always as identity primary key,de text not null,es text not null,wortart text not null default 'nomen',created_at timestamptz default now());
-create table vocab_bio(id bigint generated always as identity primary key,term text not null,description text,image_path text,created_at timestamptz default now());
+create table vocab_bio(id bigint generated always as identity primary key,term text not null,description text,image_path text,category text not null default 'Allgemein',created_at timestamptz default now());
 alter table vocab_es enable row level security; alter table vocab_bio enable row level security;
 create policy "read es" on vocab_es for select to authenticated using(true);
 create policy "admin es" on vocab_es for all using(is_admin()) with check(is_admin());
 create policy "read bio" on vocab_bio for select to authenticated using(true);
 create policy "admin bio" on vocab_bio for all using(is_admin()) with check(is_admin());
-alter publication supabase_realtime add table vocab_es, vocab_bio;`;
+alter publication supabase_realtime add table vocab_es, vocab_bio;
+-- Falls die Tabellen schon existieren (einmalig ausführen):
+alter table vocab_bio add column if not exists category text not null default 'Allgemein';
+-- Doppelte Vokabeln verhindern (vorher im Tab per "Duplikate bereinigen" aufräumen):
+create unique index if not exists vocab_es_uniq on vocab_es (lower(trim(de)),lower(trim(es)));
+create unique index if not exists vocab_bio_uniq on vocab_bio (lower(trim(term)));`;
 const missing=()=>`<p class="empty" style="padding-bottom:12px">Die Vokabel-Tabellen fehlen noch. Führe dieses SQL im Supabase SQL-Editor aus:</p><pre>${esc(SQLV)}</pre>`;
 const VB=h=>{$('#vb').innerHTML=h};
 async function vVok(t){
@@ -555,7 +655,7 @@ function learn(items,mk,title){
     <div class="row lbtn" id="lbt"><button class="btn bad" id="lno">↺ Nochmal</button><button class="btn" id="lyes" style="background:var(--acc2)">Gewusst ✓</button></div>`;
     $('#fc').onclick=toggle;$('#lno').onclick=()=>ans(false);$('#lyes').onclick=()=>ans(true);
   };
-  const toggle=()=>{if(lock||!$('#fc'))return;flip=!flip;$('#fc').classList.toggle('flip',flip);$('#lbt').classList.toggle('show',flip)};
+  const toggle=()=>{const c=$('#fc');if(lock||!c||c.classList.contains('turning'))return;flip=!flip;c.classList.add('turning');$('#lbt').classList.toggle('show',flip);setTimeout(()=>{c.classList.toggle('flip',flip);c.classList.remove('turning')},180)};
   const ans=ok=>{
     if(lock||!flip)return;lock=true;
     $('#fc').classList.add(ok?'gone-y':'gone-n');
@@ -595,6 +695,161 @@ function startSync(){
 function stopSync(){clearInterval(vpoll);if(rt){try{sb.removeChannel(rt)}catch(e){}rt=null}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)vCheck(false)});
 
+/* ---------- Tutorial (animiertes Erklär-Video) ---------- */
+const tvT=(t,n,d)=>`<span class="tv-ty" style="--n:${n};--d:${d}s">${t}</span>`;
+const tvCur=(x1,y1,x2,y2,d)=>`<div class="tv-cur" style="--x1:${x1};--y1:${y1};--x2:${x2};--y2:${y2};--d:${d}s"></div>`;
+const tvHero=sub=>`<div class="tv-hero"><span class="logo" style="width:72px;height:72px;border-radius:22px;animation:tvpop .8s cubic-bezier(.34,1.56,.64,1) both,spin 8s linear infinite"></span><div class="tv-word">${[...'Lernhub'].map((c,i)=>`<span style="--i:${i}">${c}</span>`).join('')}</div><p class="tv-sub">${sub}</p></div>`;
+const tvPk=zip=>`<div class="tv-row3">${['Biologie Zelle','Spanisch Basics','Mathe Quiz'].map((t,i)=>`<div class="tv-card ${i===1?'sel':''}" style="--i:${i}"><div class="ic">${t[0]}</div><b>${t}</b><div class="ln"></div><div class="ln s"></div><div class="tv-mini">Starten</div>${zip?'<div class="tv-mini g">ZIP laden</div>':''}</div>`).join('')}${tvCur('110%','150px','50%',zip?'118px':'122px',1.4)}</div>`;
+const tvFc=()=>`<div class="tv-fcw"><div class="tv-pb"><i></i></div><div class="tv-fc"><b class="f">la casa</b><b class="bk">das Haus</b></div><div class="tv-fb"><span>↺ Nochmal</span><span class="y">Gewusst ✓</span></div><div class="tv-cur2"></div></div>`;
+const tvEnd=t=>`<div class="confetti">${Array.from({length:24},(_,i)=>`<i style="left:${Math.random()*100}%;background:hsl(${Math.random()*360},80%,60%);animation-delay:${.5+Math.random()*.6}s;animation-duration:${1.4+Math.random()}s;transform:rotate(${Math.random()*360}deg)"></i>`).join('')}</div><div class="tv-hero"><div class="tv-ok">✓</div><div class="tv-word" style="font-size:26px"><span style="--i:0">${t}</span></div></div>`;
+const tvVoc=()=>{const R=[['el agua','Wasser','Nomen','#3b82f6',1],['beber','trinken','Verb','#ef4444',1],['lavarse','sich waschen','Reflexivverb','#a855f7',0],['bonito','schön','Adjektiv','#16a34a',1],['ducharse','sich duschen','Reflexivverb','#a855f7',0]];
+  return `<div class="tv-win" style="width:min(430px,92%)"><div class="tv-chips">${[['Nomen','#3b82f6'],['Verb','#ef4444'],['Reflexivverb','#a855f7'],['Adjektiv','#16a34a']].map(([l,c])=>`<span class="wt chip ${l==='Reflexivverb'?'glow':''}" style="--c:${c}">${l}</span>`).join('')}</div>
+  ${R.map(([s,d,w,c,h],i)=>`<div class="tv-row ${h?'hd':''}" style="--i:${i};--c:${c}"><span><b>${s}</b> <span class="meta">${d}</span></span><span class="wt" style="--c:${c}">${w}</span></div>`).join('')}${tvCur('105%','150px','42%','26px',1.7)}</div>`};
+const TUT={
+ guest:{title:'Gast-Tutorial',scenes:[
+  ['Willkommen bei Lernhub','In 4 kurzen Schritten zum ersten Lernpaket – als Gast, ganz ohne Konto.',tvHero('Dein Gastzugang'),4],
+  ['1 · Gast-Code eingeben','Den Code (XXXX-XXXX-XXXX) bekommst du von deiner Lehrkraft – oder du scannst den QR-Code. Danach die Sicherheitsabfrage lösen.',
+    `<div class="tv-win"><div class="tv-tabs"><span>Anmelden</span><span>Registrieren</span><span class="tv-tab">Gast</span></div><div class="tv-in">${tvT('A1B2-C3D4-E5F6',14,.9)}</div><div class="tv-in">${tvT('K7M2P',5,2.3)}<em>Captcha</em></div><div class="tv-btn" style="--d:3.4s">Mit Code eintreten</div>${tvCur('105%','190px','50%','152px',2.2)}</div>`,6],
+  ['2 · Lernpaket auswählen','Du siehst nur die Pakete, die für dich freigegeben sind. Mit „Starten“ öffnet sich das Paket direkt im Browser.',tvPk(false),5],
+  ['3 · Lernen mit Karteikarten','Klicke die Karte zum Umdrehen, dann „Gewusst“ oder „Nochmal“. Tastatur: Leertaste, ← und →.',tvFc(),6],
+  ['4 · Deine Zeit im Blick','Dein Zugang gilt für die vom Admin festgelegte Zeit. Downloads sind für Gäste gesperrt. Danach wirst du automatisch abgemeldet.',
+    `<div class="tv-time"><div class="tv-ring"><svg width="96" height="96"><circle class="bg" cx="48" cy="48" r="42"/><circle class="fg" cx="48" cy="48" r="42"/></svg><b>58 Min</b></div><div class="tv-dl">ZIP laden</div></div>`,5],
+  ['Viel Spaß beim Lernen!','Dieses Tutorial findest du jederzeit links unten unter „Tutorial“.',tvEnd('Los geht’s!'),4]]},
+ new:{title:'Willkommen-Tutorial',scenes:[
+  ['Willkommen bei Lernhub','Hier lernst du mit Lernpaketen, Vokabeln und Karteikarten. So startest du in 5 Schritten.',tvHero('Schön, dass du da bist'),4],
+  ['1 · Konto erstellen','Wähle einen Anzeigenamen (3–20 Zeichen), gib deine E-Mail ein und vergib ein sicheres Passwort mit mindestens 10 Zeichen, Buchstaben und Zahl.',
+    `<div class="tv-win"><div class="tv-tabs"><span>Anmelden</span><span class="tv-tab">Registrieren</span><span>Gast</span></div><div class="tv-in">${tvT('Mia_23',6,.7)}<em>6/20</em></div><div class="tv-in">${tvT('mia@mail.de',11,1.6)}</div><div class="tv-in">${tvT('••••••••••••',12,3.0)}</div><div class="tv-str"><i></i></div><div class="tv-btn" style="--d:5.3s">Konto erstellen</div>${tvCur('105%','260px','50%','206px',4.1)}</div>`,7],
+  ['2 · E-Mail bestätigen','Du bekommst eine Mail von Lernhub. Ein Klick auf den Bestätigungs-Link, danach kannst du dich anmelden.',
+    `<div class="tv-win"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;animation:tvup .5s .4s both"><span class="tv-big" style="font-size:34px;animation-delay:.2s">✉️</span><b>Bestätige deine E-Mail-Adresse</b></div><div class="ln"></div><div class="ln s"></div><div class="tv-btn" style="--d:2.4s">E-Mail bestätigen</div>${tvCur('105%','150px','50%','108px',1.2)}<div class="tv-over" style="--d:3.8s"><div class="tv-ok" style="--d:3.9s">✓</div></div></div>`,5],
+  ['3 · Lernbibliothek','Starte Lernpakete direkt im Browser oder lade sie als ZIP herunter.',tvPk(true),5],
+  ['4 · Vokabeln','Wortarten sind farbig markiert. Filtere per Klick auf die Chips oder sortiere – Bio-Vokabeln findest du in Kategorien mit Bildern.',tvVoc(),7],
+  ['5 · Lernmodus','Übe mit Karteikarten. Mit „⇄ Richtung“ wechselst du zwischen Deutsch→Spanisch und umgekehrt. Falsche Karten kommen wieder.',tvFc(),6],
+  ['Du bist startklar!','Das Tutorial findest du jederzeit links unten unter „Tutorial“.',tvEnd('Viel Erfolg!'),4]]}};
+function showTutorial(kind){
+  const T=TUT[kind]||TUT.new;let i=0,ended=false;
+  try{localStorage.setItem('lh_tut_'+kind,'1')}catch(e){}
+  openModal(`<div class="box sm"><div class="bar" style="margin:-24px -24px 14px"><h3>▶ ${T.title}</h3><button class="btn ghost" id="x">Schließen</button></div><div class="tv" id="tv"><div class="tv-stage" id="tvs"></div><div class="tv-cap" id="tvc"></div>
+  <div class="tv-prog" id="tvg">${T.scenes.map((s,n)=>`<button data-n="${n}" aria-label="Szene ${n+1}"><i></i></button>`).join('')}</div>
+  <div class="row" style="justify-content:center"><button class="btn ghost" id="tvb">⏮</button><button class="btn" id="tvpl">⏸ Pause</button><button class="btn ghost" id="tvn">⏭</button></div></div></div>`);
+  const tv=$('#tv'),pl=$('#tvpl');
+  const render=n=>{
+    i=Math.max(0,Math.min(T.scenes.length-1,n));ended=false;tv.classList.remove('paused');pl.textContent='⏸ Pause';
+    const [t,p,h,s]=T.scenes[i];
+    $('#tvs').innerHTML=h;$('#tvc').innerHTML=`<h4>${t}</h4><p>${p}</p>`;
+    $('#tvc').style.animation='none';void $('#tvc').offsetWidth;$('#tvc').style.animation='';
+    [...$('#tvg').children].forEach((b,k)=>{b.classList.remove('active');b.classList.toggle('done',k<i);b.style.setProperty('--d',T.scenes[k][3]+'s')});
+    const a=$('#tvg').children[i];void a.offsetWidth;a.classList.add('active');
+  };
+  $('#tvg').onanimationend=e=>{if(e.target.parentElement.classList.contains('active')){if(i<T.scenes.length-1)render(i+1);else{ended=true;pl.textContent='↺ Nochmal'}}};
+  $('#tvg').onclick=e=>{const b=e.target.closest('button');b&&render(+b.dataset.n)};
+  $('#tvb').onclick=()=>render(i-1);$('#tvn').onclick=()=>render(i+1);
+  pl.onclick=()=>{if(ended)return render(0);const p=tv.classList.toggle('paused');pl.textContent=p?'▶ Weiter':'⏸ Pause'};
+  render(0);
+}
+const tutKind=()=>profile&&profile.role==='guest'?'guest':'new';
+const tutSeen=k=>{try{return localStorage.getItem('lh_tut_'+k)}catch(e){return 1}};
+document.addEventListener('click',e=>{if(e.target.closest('.tutlink')){e.preventDefault();showTutorial(profile?tutKind():(mode==='guest'?'guest':'new'))}});
+/* ---------- Namen & Passwort prüfen ---------- */
+const NAME_MIN=3,NAME_MAX=20;
+function checkName(n){
+  if(n.length<NAME_MIN||n.length>NAME_MAX)return `Der Anzeigename braucht ${NAME_MIN}–${NAME_MAX} Zeichen.`;
+  if(!/^[\p{L}\p{N}][\p{L}\p{N} ._-]*[\p{L}\p{N}]$/u.test(n))return 'Anzeigename: nur Buchstaben, Zahlen, Leerzeichen, . _ - (Anfang und Ende ohne Sonderzeichen).';
+  if(/^(admin|administrator|root|support|moderator|lernhub|gast|guest)$/i.test(n))return 'Dieser Anzeigename ist reserviert.';
+  return '';
+}
+function checkPw(p,email){
+  if(p.length<10)return 'Das Passwort braucht mindestens 10 Zeichen.';
+  if(p.length>72)return 'Das Passwort darf höchstens 72 Zeichen haben.';
+  if(!/[A-Za-zÄÖÜäöüß]/.test(p)||!/\d/.test(p))return 'Das Passwort braucht Buchstaben und mindestens eine Zahl.';
+  if(/^(passwort|password|12345|qwertz|qwerty)/i.test(p)||(email&&p.toLowerCase().includes(email.split('@')[0].toLowerCase())&&email.split('@')[0].length>2))return 'Das Passwort ist zu leicht zu erraten.';
+  return '';
+}
+/* ---------- Automatische Abmeldung bei Inaktivität ---------- */
+let idleT=null,lastAct=Date.now();
+const IDLE_MIN=30;
+['mousemove','keydown','click','touchstart','scroll'].forEach(ev=>addEventListener(ev,()=>{lastAct=Date.now()},{passive:true}));
+function startIdle(){
+  clearInterval(idleT);lastAct=Date.now();
+  idleT=setInterval(async()=>{if(Date.now()-lastAct>IDLE_MIN*60000){clearInterval(idleT);await logEv('idle_logout',IDLE_MIN+' Min inaktiv');loggedFor=null;await sb.auth.signOut();toast('Wegen Inaktivität abgemeldet')}},30000);
+}
+/* ---------- Protokoll (Admin) ---------- */
+const SQLSEC=`-- 1) Anzeigename mit Längenbegrenzung (3–20 Zeichen) auch serverseitig
+alter table profiles add column if not exists display_name text;
+alter table profiles drop constraint if exists profiles_name_len, add constraint profiles_name_len check(display_name is null or char_length(display_name) between 3 and 20);
+create or replace function handle_new_user() returns trigger language plpgsql security definer set search_path=public as $$begin insert into profiles(id,email,display_name) values(new.id,new.email,nullif(left(trim(new.raw_user_meta_data->>'name'),20),''));return new;end$$;
+-- 2) Längenlimits für Vokabeln
+alter table vocab_es drop constraint if exists vocab_es_len, add constraint vocab_es_len check(char_length(de)<=80 and char_length(es)<=80);
+alter table vocab_bio drop constraint if exists vocab_bio_len, add constraint vocab_bio_len check(char_length(term)<=80 and char_length(coalesce(description,''))<=1000 and char_length(category)<=40);
+-- 3) Protokoll
+create table if not exists audit_log(id bigint generated always as identity primary key,created_at timestamptz default now(),user_id uuid,actor text,action text not null,detail text);
+create index if not exists audit_log_time on audit_log(created_at desc);
+alter table audit_log enable row level security;
+drop policy if exists "admin read log" on audit_log; create policy "admin read log" on audit_log for select using(is_admin());
+drop policy if exists "admin delete log" on audit_log; create policy "admin delete log" on audit_log for delete using(is_admin());
+create or replace function log_event(a text,d text default null,who text default null) returns void language plpgsql security definer set search_path=public as $$
+declare e text;
+begin
+  if a !~ '^[a-z_]{2,40}$' then return; end if;
+  if auth.uid() is null and (select count(*) from audit_log where user_id is null and created_at>now()-interval '1 minute')>=30 then return; end if;
+  select email into e from profiles where id=auth.uid();
+  insert into audit_log(user_id,actor,action,detail) values(auth.uid(),coalesce(e,left(who,80),'Gast'),a,left(d,300));
+end$$;
+grant execute on function log_event(text,text,text) to anon,authenticated;`;
+const ACT={login:['Anmeldung','on'],logout:['Abmeldung',''],signup:['Registrierung','on'],guest_login:['Gast-Login','on'],idle_logout:['Inaktiv abgemeldet',''],login_failed:['Login fehlgeschlagen','x'],signup_failed:['Registrierung fehlgeschlagen','x'],guest_failed:['Gast-Code abgelehnt','x'],lockout:['Sperre nach Fehlversuchen','x'],code_created:['Gast-Code erzeugt',''],code_revoked:['Gast-Code widerrufen','x'],package_upload:['Paket hochgeladen',''],package_delete:['Paket gelöscht','x'],role_change:['Rolle geändert',''],vocab_add:['Vokabel hinzugefügt',''],vocab_delete:['Vokabel gelöscht','x']};
+const LGRP={sec:['login_failed','signup_failed','guest_failed','lockout'],auth:['login','logout','signup','guest_login','idle_logout'],cont:['package_upload','package_delete','vocab_add','vocab_delete'],adm:['code_created','code_revoked','role_change']};
+let lgq='',lgf='';
+async function vLog(){
+  V('<p class="empty">Lade …</p>');
+  const r=await sb.from('audit_log').select('*').order('created_at',{ascending:false}).limit(500);
+  if(r.error){V(`<h1>Protokoll</h1><p class="empty" style="padding-bottom:12px">Die Protokoll-Tabelle fehlt noch. Führe dieses SQL einmalig im Supabase SQL-Editor aus (enthält auch die Längenlimits):</p><pre>${esc(SQLSEC)}</pre><button class="btn" id="cps">SQL kopieren</button>`);$('#cps').onclick=()=>{navigator.clipboard.writeText(SQLSEC);toast('Kopiert')};return}
+  const all=r.data,day=Date.now()-864e5,n=(f)=>all.filter(e=>new Date(e.created_at)>day&&f(e)).length;
+  V(`<header class="top"><div><h1>Protokoll</h1><p class="meta" id="lc">Sicherheits- und Aktivitätslog · die letzten 500 Ereignisse</p></div><div class="row"><button class="btn ghost" id="lre">↻ Aktualisieren</button><button class="btn ghost" id="lcs">⬇ CSV</button><button class="btn ghost" id="lold">Älter als 90 Tage löschen</button></div></header>
+  <div class="stats">${[[n(()=>1),'Ereignisse (24 h)'],[n(e=>e.action==='login'||e.action==='guest_login'),'Anmeldungen (24 h)'],[n(e=>e.action==='login_failed'||e.action==='guest_failed'),'Fehlversuche (24 h)'],[n(e=>e.action==='lockout'),'Sperren (24 h)']].map(([a,l])=>`<div class="card stat"><b>${a}</b><span>${l}</span></div>`).join('')}</div>
+  <div class="vbar"><input id="lq" placeholder="Suchen (Name, E-Mail, Detail) …" value="${esc(lgq)}"><select id="lf"><option value="">Alle Ereignisse</option><option value="sec">Sicherheit &amp; Fehlversuche</option><option value="auth">An- und Abmeldungen</option><option value="cont">Inhalte</option><option value="adm">Admin-Aktionen</option></select></div>
+  <div class="card tablewrap"><table class="lg"><tr><th>Zeit</th><th>Wer</th><th>Ereignis</th><th>Detail</th></tr><tbody id="ll"></tbody></table></div>`);
+  $('#lf').value=lgf;let cur=[];
+  const view=()=>{const q=lgq.toLowerCase();
+    cur=all.filter(e=>(!lgf||LGRP[lgf].includes(e.action))&&((e.actor||'')+' '+(e.detail||'')+' '+e.action+' '+((ACT[e.action]||[])[0]||'')).toLowerCase().includes(q));
+    $('#ll').innerHTML=cur.map(e=>{const [l,k]=ACT[e.action]||[e.action,''];return `<tr><td class="dt">${new Date(e.created_at).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'medium'})}</td><td>${esc(e.actor||'Unbekannt')}</td><td><span class="badge ${k}">${esc(l)}</span></td><td>${esc(e.detail||'')}</td></tr>`}).join('')||'<tr><td colspan=4 class="empty">Keine Einträge.</td></tr>'};
+  view();
+  $('#lq').oninput=e=>{lgq=e.target.value;view()};$('#lf').onchange=e=>{lgf=e.target.value;view()};$('#lre').onclick=vLog;
+  $('#lcs').onclick=()=>{const c=v=>{v=String(v??'');if(/^[=+\-@]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"'};
+    const csv='Zeit;Wer;Ereignis;Detail\n'+cur.map(e=>[e.created_at,e.actor,(ACT[e.action]||[e.action])[0],e.detail].map(c).join(';')).join('\n');
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'}));a.download='lernhub-protokoll.csv';a.click()};
+  $('#lold').onclick=async()=>{if(!confirm('Alle Einträge älter als 90 Tage endgültig löschen?'))return;const x=await sb.from('audit_log').delete().lt('created_at',new Date(Date.now()-90*864e5).toISOString());x.error?toast(x.error.message):(toast('Alte Einträge gelöscht'),vLog())};
+}
+
+/* ---------- Datenschutz ---------- */
+function showPrivacy(){
+  openModal(`<div class="box sm priv"><div class="bar" style="margin:-24px -24px 8px"><h3 style="margin:0;font-size:18px">🔒 Datenschutzerklärung</h3><button class="btn ghost" id="x">Schließen</button></div>
+  <p class="meta">Stand: ${new Date().toLocaleDateString('de-DE',{month:'long',year:'numeric'})}</p>
+  <h3>1. Verantwortlicher</h3><p>[Name], [Straße Hausnummer, PLZ Ort], [E-Mail-Adresse] – bitte vom Betreiber ausfüllen.</p>
+  <h3>2. Welche Daten verarbeitet werden</h3><ul>
+  <li><b>Konto:</b> E-Mail-Adresse und Passwort (nur als Hash gespeichert) bei der Registrierung.</li>
+  <li><b>Gastzugang:</b> der eingegebene Zugangscode und dessen Gültigkeit.</li>
+  <li><b>Lerninhalte:</b> Vokabeln, Beschreibungen und Bilder, die Administratoren einstellen.</li>
+  <li><b>Technische Daten:</b> beim Aufruf fallen IP-Adresse, Zeitpunkt und Browserangaben in Server-Logs des Hosters bzw. des Datenbankdienstes an.</li></ul>
+  <h3>3. Zweck und Rechtsgrundlage</h3><p>Bereitstellung der Lernplattform und Kontoverwaltung (Art. 6 Abs. 1 lit. b DSGVO) sowie sicherer, stabiler Betrieb (Art. 6 Abs. 1 lit. f DSGVO).</p>
+  <h3>4. Dienstleister</h3><p>Datenbank, Anmeldung und Dateispeicher laufen über <b>Supabase</b>; die Seite wird vom Hoster des Betreibers ausgeliefert. Mit diesen Dienstleistern sollte ein Auftragsverarbeitungsvertrag bestehen. Der Serverstandort richtet sich nach der gewählten Projektregion.</p>
+  <h3>5. Speicherung im Browser</h3><p>Es werden nur technisch notwendige Informationen im Browser gespeichert (Anmeldesitzung, Design-Einstellung). Es gibt kein Tracking, keine Analyse- und keine Werbedienste.</p>
+  <h3>6. Speicherdauer</h3><p>Kontodaten bleiben bis zur Löschung des Kontos gespeichert. Gastzugänge enden mit Ablauf des Codes. Log-Daten werden nach den Fristen der Dienstleister gelöscht.</p>
+  <h3>7. Deine Rechte</h3><p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit und Widerspruch (Art. 15–21 DSGVO) sowie auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde. Wende dich dafür an die oben genannte Adresse.</p>
+  <h3>8. Sicherheit</h3><p>Die Übertragung erfolgt verschlüsselt (HTTPS). Schreibrechte haben nur Administratoren.</p></div>`);
+}
+document.addEventListener('click',e=>{if(e.target.closest('.privlink')){e.preventDefault();showPrivacy()}});
+/* ---------- Duplikate ---------- */
+const norm=s=>(s||'').toLowerCase().replace(/\s+/g,' ').trim();
+const DUPMSG='Diese Vokabel gibt es schon.';
+function dupBtn(table,all,key,reload){
+  const seen=new Set(),del=[];
+  [...all].sort((a,b)=>a.id-b.id).forEach(w=>{const k=key(w);seen.has(k)?del.push(w):seen.add(k)});
+  if(!del.length||!$('#vclr'))return;
+  $('#vclr').innerHTML=`<button class="btn ghost" id="vdd">🧹 ${del.length} Duplikat${del.length>1?'e':''} bereinigen</button>`;
+  $('#vdd').onclick=async()=>{if(!confirm(`${del.length} doppelte Einträge löschen? Der älteste bleibt erhalten.`))return;
+    const p=del.map(w=>w.image_path).filter(Boolean);if(p.length)await sb.storage.from(BUCKET).remove(p);
+    const x=await sb.from(table).delete().in('id',del.map(w=>w.id));x.error?toast(x.error.message):(toast('Bereinigt'),reload())};
+}
+
 /* --- Spanisch --- */
 async function vEs(){
   VB('<p class="empty">Lade …</p>');
@@ -602,9 +857,9 @@ async function vEs(){
   if(r.error)return VB(`<h1>Spanisch</h1>${missing()}`);
   const all=r.data,adm=isAdm();vsig=sig(all);let cur=[];
   VB(`<header class="top"><div><h1>Spanisch</h1><p class="meta" id="vc"></p></div><button class="btn" id="vlearn">🎓 Lernmodus</button></header>
-  ${adm?`<div class="card" style="margin-bottom:18px"><div class="f2"><div><label for="vde">Deutsch</label><input id="vde"></div><div><label for="ves">Spanisch</label><input id="ves"></div>
+  ${adm?`<div class="card" style="margin-bottom:18px"><div class="f2"><div><label for="vde">Deutsch</label><input id="vde" maxlength="80"></div><div><label for="ves">Spanisch</label><input id="ves" maxlength="80"></div>
   <div><label for="vwt">Wortart</label><select id="vwt">${Object.entries(WT).map(([k,[l,c]])=>`<option value="${k}" data-c="${c}">${l}</option>`).join('')}</select></div></div>
-  <button class="btn" id="vadd">Hinzufügen</button></div>`:''}
+  <p class="meta" id="vdup" style="color:var(--bad);min-height:18px;margin-bottom:8px"></p><div class="row"><button class="btn" id="vadd">Hinzufügen</button><span id="vclr"></span></div></div>`:''}
   <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"><select id="vso"><option value="wt">Sortiert nach Wortart</option><option value="de">Deutsch A–Z</option><option value="es">Spanisch A–Z</option><option value="new">Neueste zuerst</option></select></div>
   <div class="chips" id="vch"></div>
   <div class="card tablewrap"><table><tr><th>Deutsch</th><th>Spanisch</th><th>Wortart</th>${adm?'<th></th>':''}</tr><tbody id="vl"></tbody></table></div>`);
@@ -620,43 +875,65 @@ async function vEs(){
   };
   view();
   $('#vs').oninput=e=>{vq=e.target.value;view()};$('#vso').onchange=e=>{vsort=e.target.value;view()};
-  $('#vl').onclick=async e=>{const b=e.target.closest('[data-x]');if(!b||!confirm('Wort löschen?'))return;await sb.from('vocab_es').delete().eq('id',b.dataset.x);vEs()};
+  $('#vl').onclick=async e=>{const b=e.target.closest('[data-x]');if(!b||!confirm('Wort löschen?'))return;await sb.from('vocab_es').delete().eq('id',b.dataset.x);logEv('vocab_delete','ES');vEs()};
   $('#vlearn').onclick=()=>learn(cur,(w,rev)=>{const d=`<h2>${esc(w.de)}</h2>`,s=`<h2>${esc(w.es)}</h2>`;return rev?[s+wtTag(w.wortart),d]:[d+wtTag(w.wortart),s]},'Spanisch lernen');
   if(adm){
-    $('#vadd').onclick=async()=>{const de=$('#vde').value.trim(),es=$('#ves').value.trim();if(!de||!es)return toast('Deutsch und Spanisch ausfüllen.');
-      const x=await sb.from('vocab_es').insert({de,es,wortart:$('#vwt').value});x.error?toast(x.error.message):(toast('Gespeichert'),vEs())};
+    const isDup=()=>{const de=norm($('#vde').value),es=norm($('#ves').value);return !!de&&!!es&&all.some(w=>norm(w.de)===de&&norm(w.es)===es)};
+    $('#vde').oninput=$('#ves').oninput=()=>{$('#vdup').textContent=isDup()?'⚠ '+DUPMSG:''};
+    $('#vadd').onclick=async()=>{const de=$('#vde').value.trim(),es=$('#ves').value.trim();if(!de||!es)return toast('Deutsch und Spanisch ausfüllen.');if(isDup())return toast(DUPMSG);
+      const x=await sb.from('vocab_es').insert({de,es,wortart:$('#vwt').value});x.error?toast(x.error.code==='23505'?DUPMSG:x.error.message):(toast('Gespeichert'),logEv('vocab_add','ES · '+de+' = '+es),vEs())};
+    dupBtn('vocab_es',all,w=>norm(w.de)+'|'+norm(w.es),vEs);
   }
 }
 /* --- Biologie --- */
+let vcat='';
+const catErr=e=>/category/.test(e.message)?"Spalte „category“ fehlt – im SQL-Editor ausführen: alter table vocab_bio add column category text not null default 'Allgemein';":e.code==='23505'?DUPMSG:e.message;
 async function vBio(){
   VB('<p class="empty">Lade …</p>');
   const r=await sb.from('vocab_bio').select('*').order('term');
   if(r.error)return VB(`<h1>Biologie</h1>${missing()}`);
-  const all=r.data,adm=isAdm();vsig=sig(all);const urls={},paths=all.map(w=>w.image_path).filter(Boolean);
+  const all=r.data.map(w=>({...w,category:(w.category||'').trim()||'Allgemein'})),adm=isAdm();vsig=sig(all);
+  const cats=[...new Set(all.map(w=>w.category))].sort((a,b)=>a.localeCompare(b,'de'));if(vcat&&!cats.includes(vcat))vcat='';
+  const urls={},paths=all.map(w=>w.image_path).filter(Boolean);
   if(paths.length){const s=await sb.storage.from(BUCKET).createSignedUrls(paths,3600);if(!s.error)s.data.forEach(o=>urls[o.path]=o.signedUrl);
     paths.forEach(p=>{urls[p]=urls[p]||sb.storage.from(BUCKET).getPublicUrl(p).data.publicUrl})}
   const img=w=>w.image_path?`<img src="${esc(urls[w.image_path])}" alt="${esc(w.term)}" loading="lazy">`:'';
   VB(`<header class="top"><div><h1>Biologie</h1><p class="meta" id="vc"></p></div><button class="btn" id="vlearn">🎓 Lernmodus</button></header>
-  ${adm?`<div class="card" style="margin-bottom:18px"><label for="bt">Vokabel</label><input id="bt"><label for="bd">Beschreibung</label><textarea id="bd" rows="3"></textarea>
-  <label for="bf">Bild (optional)</label><input id="bf" type="file" accept="image/*"><button class="btn" id="badd">Hinzufügen</button></div>`:''}
-  <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"></div><div class="grid" id="vl"></div>`);
+  ${adm?`<div class="card" style="margin-bottom:18px"><label for="bt">Vokabel</label><input id="bt" maxlength="80"><label for="bk">Kategorie</label><input id="bk" maxlength="40" list="bkl" placeholder="z. B. Zelle, Genetik, Ökologie"><datalist id="bkl">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist>
+  <label for="bd">Beschreibung</label><textarea id="bd" rows="3" maxlength="1000"></textarea><label for="bf">Bild (optional)</label><input id="bf" type="file" accept="image/*">
+  <p class="meta" id="vdup" style="color:var(--bad);min-height:18px;margin-bottom:8px"></p><div class="row"><button class="btn" id="badd">Hinzufügen</button><span id="vclr"></span></div></div>`:''}
+  <div class="vbar"><input id="vs" placeholder="Suchen …" value="${esc(vq)}"></div><div class="chips" id="vch"></div><div id="vl"></div>`);
   let cur=[];
+  const card=w=>`<div class="card bio">${img(w)}<div class="bd"><h3>${esc(w.term)}</h3><p class="meta" style="font-size:14px;white-space:pre-wrap">${esc(w.description||'')}</p>${adm?`<div class="row" style="margin-top:auto"><button class="btn ghost" data-c="${w.id}">Kategorie</button><button class="btn ghost" data-x="${w.id}">Löschen</button></div>`:''}</div></div>`;
   const view=()=>{
-    const q=vq.toLowerCase();cur=all.filter(w=>(w.term+' '+(w.description||'')).toLowerCase().includes(q));
-    $('#vl').innerHTML=cur.map(w=>`<div class="card bio">${img(w)}<div class="bd"><h3>${esc(w.term)}</h3><p class="meta" style="font-size:14px;white-space:pre-wrap">${esc(w.description||'')}</p>${adm?`<div class="row" style="margin-top:auto"><button class="btn ghost" data-x="${w.id}">Löschen</button></div>`:''}</div></div>`).join('')||'<p class="empty">Keine Vokabeln gefunden.</p>';
-    $('#vc').textContent=`${cur.length} von ${all.length} Vokabeln`;
+    const q=vq.toLowerCase();cur=all.filter(w=>(!vcat||w.category===vcat)&&(w.term+' '+(w.description||'')).toLowerCase().includes(q));
+    $('#vch').innerHTML=[['','Alle',all.length],...cats.map(c=>[c,c,all.filter(w=>w.category===c).length])].map(([k,l,n])=>`<button class="wt chip ${vcat===k?'on':''}" style="--c:#5b5bf0" data-k="${esc(k)}">${esc(l)} · ${n}</button>`).join('');
+    document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{vcat=b.dataset.k;view()});
+    $('#vl').innerHTML=cats.filter(c=>cur.some(w=>w.category===c)).map(c=>{const l=cur.filter(w=>w.category===c);return `<details class="cat" open><summary><h2>${esc(c)}</h2><span class="meta">${l.length}</span></summary><div class="grid">${l.map(card).join('')}</div></details>`}).join('')||'<p class="empty">Keine Vokabeln gefunden.</p>';
+    $('#vc').textContent=`${cur.length} von ${all.length} Vokabeln · ${cats.length} Kategorie${cats.length===1?'':'n'}`;
   };
   view();
   $('#vs').oninput=e=>{vq=e.target.value;view()};
-  $('#vl').onclick=async e=>{const b=e.target.closest('[data-x]');if(!b)return;const w=all.find(x=>x.id==b.dataset.x);if(!confirm(`„${w.term}“ löschen?`))return;
-    if(w.image_path)await sb.storage.from(BUCKET).remove([w.image_path]);await sb.from('vocab_bio').delete().eq('id',w.id);vBio()};
-  $('#vlearn').onclick=()=>learn(cur,(w,rev)=>{const d=`${img(w)}<p>${esc(w.description||'')}</p>`,t=`<h2>${esc(w.term)}</h2>`;return rev?[d,t]:[t,d+''] },'Biologie lernen');
-  if(adm)$('#badd').onclick=async()=>{
-    const term=$('#bt').value.trim();if(!term)return toast('Vokabel eingeben.');
-    let image_path=null;const f=$('#bf').files[0];
-    if(f){image_path=`bio/${Date.now()}_${f.name.replace(/[^\w.-]/g,'_')}`;const u=await sb.storage.from(BUCKET).upload(image_path,f,{contentType:f.type});if(u.error)return toast(u.error.message)}
-    const x=await sb.from('vocab_bio').insert({term,description:$('#bd').value.trim(),image_path});x.error?toast(x.error.message):(toast('Gespeichert'),vBio());
-  };
+  $('#vl').onclick=async e=>{
+    const c=e.target.closest('[data-c]');
+    if(c){const w=all.find(x=>x.id==c.dataset.c),n=prompt(`Kategorie für „${w.term}“:`,w.category);if(n&&n.trim()&&n.trim()!==w.category){const u=await sb.from('vocab_bio').update({category:n.trim()}).eq('id',w.id);u.error?toast(catErr(u.error)):vBio()}return}
+    const b=e.target.closest('[data-x]');if(!b)return;const w=all.find(x=>x.id==b.dataset.x);if(!confirm(`„${w.term}“ löschen?`))return;
+    if(w.image_path)await sb.storage.from(BUCKET).remove([w.image_path]);await sb.from('vocab_bio').delete().eq('id',w.id);logEv('vocab_delete','Bio · '+w.term);vBio()};
+  $('#vlearn').onclick=()=>learn(cur,(w,rev)=>{const d=`${img(w)}<p>${esc(w.description||'')}</p>`,t=`<h2>${esc(w.term)}</h2>`;return rev?[d,t]:[t,d]},'Biologie lernen'+(vcat?' · '+vcat:''));
+  if(adm){
+    const isDup=()=>{const t=norm($('#bt').value);return !!t&&all.some(w=>norm(w.term)===t)};
+    $('#bt').oninput=()=>{$('#vdup').textContent=isDup()?'⚠ '+DUPMSG:''};
+    dupBtn('vocab_bio',all,w=>norm(w.term),vBio);
+    $('#badd').onclick=async()=>{
+      const term=$('#bt').value.trim();if(!term)return toast('Vokabel eingeben.');if(isDup())return toast(DUPMSG);
+      let image_path=null;const f=$('#bf').files[0];
+    if(f&&(!/^image\/(jpeg|png|webp|gif)$/.test(f.type)||f.size>5242880))return toast('Nur JPG, PNG, WebP oder GIF bis 5 MB.');
+      if(f){image_path=`bio/${Date.now()}_${f.name.replace(/[^\w.-]/g,'_')}`;const u=await sb.storage.from(BUCKET).upload(image_path,f,{contentType:f.type});if(u.error)return toast(u.error.message)}
+      const x=await sb.from('vocab_bio').insert({term,description:$('#bd').value.trim(),image_path,category:$('#bk').value.trim()||vcat||'Allgemein'});
+      if(x.error){if(image_path)await sb.storage.from(BUCKET).remove([image_path]);return toast(catErr(x.error))}
+      toast('Gespeichert');logEv('vocab_add','Bio · '+term);vBio();
+    };
+  }
 }
 
 /* ---------- Eigene Dropdowns (native <select> bleibt als Datenquelle erhalten) ---------- */
